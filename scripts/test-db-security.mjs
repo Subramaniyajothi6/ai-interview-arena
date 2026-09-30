@@ -22,7 +22,8 @@ const stamp = Date.now();
 const users = [];
 async function makeUser(name) {
   const email = `rls-test-${name}-${stamp}@example.com`;
-  const password = `Test-${stamp}-pw`;
+  // Random per run, so no credential-like value is stored in the repo.
+  const password = `${crypto.randomUUID()}Aa1!`;
   const { data, error } = await admin.auth.admin.createUser({
     email,
     password,

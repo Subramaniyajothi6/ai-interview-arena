@@ -40,11 +40,13 @@ export function InterviewRoom({
   meta,
   questions,
   startedAt,
+  allowVoice,
 }: {
   interviewId: string;
   meta: { role: string; type: string; difficulty: string };
   questions: RoomQuestion[];
   startedAt: string | null;
+  allowVoice: boolean;
 }) {
   const router = useRouter();
   const current = questions.find((q) => q.status === "current");
@@ -228,7 +230,7 @@ export function InterviewRoom({
                   aria-label="Answer mode"
                   className="flex gap-2 rounded-xl bg-bg p-1"
                 >
-                  {(["text", "voice"] as const).map((m) => (
+                  {(allowVoice ? (["text", "voice"] as const) : (["text"] as const)).map((m) => (
                     <button
                       key={m}
                       type="button"

@@ -90,6 +90,14 @@ export async function processResume(input: {
 
     const bytes = new Uint8Array(await blob.arrayBuffer());
     const fileSize = bytes.byteLength; // read before extraction touches the buffer
+    const { data: settings } = await supabase
+      .from("app_settings")
+      .select("max_resume_mb")
+      .eq("id", 1)
+      .maybeSingle();
+    const maxMb = settings?.max_resume_mb ?? 5;
+    if (fileSize > maxMb * 1024 * 1024)
+      throw new ResumeError(`The file is larger than ${maxMb} MB.`);
     const file = new File([bytes], input.fileName.slice(0, 200));
     const { fileType } = validateResume(file, bytes);
     const text = await extractResumeText(bytes, fileType);

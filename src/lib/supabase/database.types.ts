@@ -102,6 +102,7 @@ export type Database = {
       }
       app_settings: {
         Row: {
+          ai_provider: string
           allow_follow_ups: boolean
           allow_voice_answers: boolean
           id: number
@@ -112,6 +113,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_provider?: string
           allow_follow_ups?: boolean
           allow_voice_answers?: boolean
           id?: number
@@ -122,6 +124,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_provider?: string
           allow_follow_ups?: boolean
           allow_voice_answers?: boolean
           id?: number

@@ -29,6 +29,12 @@ export default async function ResumePage({ params }: PageProps<"/interview/[id]/
     .order("created_at", { ascending: false })
     .limit(5);
 
+  const { data: settings } = await supabase
+    .from("app_settings")
+    .select("max_resume_mb")
+    .eq("id", 1)
+    .maybeSingle();
+
   const current = resumes?.find((r) => r.id === interview.resume_id);
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-5">
@@ -38,6 +44,7 @@ export default async function ResumePage({ params }: PageProps<"/interview/[id]/
       <ResumeStep
         interviewId={id}
         userId={user.id}
+        maxMb={settings?.max_resume_mb ?? 5}
         attached={
           current
             ? {

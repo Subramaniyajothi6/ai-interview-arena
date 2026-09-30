@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { logout } from "@/app/(auth)/actions";
 import { BottomNav, PageTitle, SidebarNav } from "@/components/layout/candidate-nav";
 import { UserBadge } from "@/components/layout/user-badge";
@@ -7,6 +8,8 @@ import { requireUser } from "@/lib/auth";
 
 export default async function CandidateLayout({ children }: { children: React.ReactNode }) {
   const { profile, supabase } = await requireUser();
+  // The candidate area is for candidates; admins use the admin console.
+  if (profile.role === "admin") redirect("/admin");
 
   // "Next practice" tip: the top improvement area from the latest report.
   const { data: latest } = await supabase

@@ -22,7 +22,7 @@ export default async function RoomPage({ params }: PageProps<"/interview/[id]/ro
   if (iv.status === "setup") redirect(`/interview/${id}`);
   if (iv.status === "completed" || iv.status === "abandoned") redirect(`/interview/${id}/complete`);
 
-  const [{ data: questions }, { data: answers }] = await Promise.all([
+  const [{ data: questions }, { data: answers }, { data: settings }] = await Promise.all([
     supabase
       .from("interview_questions")
       .select("id, position, follow_up_index, question, skill, source")
@@ -30,6 +30,7 @@ export default async function RoomPage({ params }: PageProps<"/interview/[id]/ro
       .order("position")
       .order("follow_up_index"),
     supabase.from("candidate_answers").select("question_id, skipped").eq("interview_id", id),
+    supabase.from("app_settings").select("allow_voice_answers").eq("id", 1).maybeSingle(),
   ]);
 
   const answered = new Map((answers ?? []).map((a) => [a.question_id, a.skipped]));
@@ -64,6 +65,7 @@ export default async function RoomPage({ params }: PageProps<"/interview/[id]/ro
         difficulty: difficultyLabel(iv.difficulty),
       }}
       questions={list}
+      allowVoice={settings?.allow_voice_answers ?? true}
     />
   );
 }

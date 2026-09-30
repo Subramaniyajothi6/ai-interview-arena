@@ -40,7 +40,7 @@ export async function login(_prev: AuthFormState, formData: FormData): Promise<A
   if (!isSupabaseConfigured()) return { error: NOT_CONFIGURED, values };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) {
     const message =
       error.code === "email_not_confirmed"
@@ -48,6 +48,14 @@ export async function login(_prev: AuthFormState, formData: FormData): Promise<A
         : "Incorrect email or password.";
     return { error: message, values };
   }
+
+  // Admins who use the normal login page go straight to the admin console.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+  if (profile?.role === "admin") redirect("/admin");
 
   redirect(safeNext(formData.get("next")));
 }

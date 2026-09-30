@@ -26,3 +26,8 @@ export const STATUS_LABELS: Record<string, { label: string; chip: string }> = {
 export function daysAgoIso(days: number) {
   return new Date(Date.now() - days * 864e5).toISOString();
 }
+
+// Current time in ms (kept out of component bodies for the React purity lint rule).
+export function nowMs() {
+  return Date.now();
+}

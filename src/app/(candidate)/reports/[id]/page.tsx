@@ -30,21 +30,28 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
     .maybeSingle();
   if (!iv) notFound();
 
-  const [{ data: questions }, { data: answers }, { data: evaluations }, { data: report }] =
-    await Promise.all([
-      supabase
-        .from("interview_questions")
-        .select("id, position, follow_up_index, question, skill, source")
-        .eq("interview_id", id)
-        .order("position")
-        .order("follow_up_index"),
-      supabase
-        .from("candidate_answers")
-        .select("id, question_id, answer_text, mode, skipped")
-        .eq("interview_id", id),
-      supabase.from("ai_evaluations").select("*").eq("interview_id", id),
-      supabase.from("interview_reports").select("*").eq("interview_id", id).maybeSingle(),
-    ]);
+  const [
+    { data: questions },
+    { data: answers },
+    { data: evaluations },
+    { data: report },
+    { data: settings },
+  ] = await Promise.all([
+    supabase
+      .from("interview_questions")
+      .select("id, position, follow_up_index, question, skill, source")
+      .eq("interview_id", id)
+      .order("position")
+      .order("follow_up_index"),
+    supabase
+      .from("candidate_answers")
+      .select("id, question_id, answer_text, mode, skipped")
+      .eq("interview_id", id),
+    supabase.from("ai_evaluations").select("*").eq("interview_id", id),
+    supabase.from("interview_reports").select("*").eq("interview_id", id).maybeSingle(),
+    supabase.from("app_settings").select("show_question_scores").eq("id", 1).maybeSingle(),
+  ]);
+  const showScores = settings?.show_question_scores ?? true;
 
   const answerOf = new Map((answers ?? []).map((a) => [a.question_id, a]));
   const evalOf = new Map((evaluations ?? []).map((e) => [e.answer_id, e]));
@@ -140,7 +147,7 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
           <ol>
             {(questions ?? []).map((q) => {
               const a = answerOf.get(q.id);
-              const e = a ? evalOf.get(a.id) : undefined;
+              const e = a && showScores ? evalOf.get(a.id) : undefined;
               return (
                 <li key={q.id} className="flex gap-4 border-t border-border-soft px-5 py-4">
                   <span className="w-8 shrink-0 pt-0.5 text-xs font-bold text-muted">

@@ -55,6 +55,12 @@ export function LoginForm({ next, notice }: { next?: string; notice?: string }) 
           Create an account
         </Link>
       </p>
+      <p className="text-center text-xs text-muted">
+        Platform administrator?{" "}
+        <Link href="/admin/login" className="font-semibold">
+          Admin sign in
+        </Link>
+      </p>
     </form>
   );
 }

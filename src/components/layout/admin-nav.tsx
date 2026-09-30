@@ -66,3 +66,15 @@ export function AdminPageTitle() {
   const item = [...ADMIN_NAV].reverse().find((n) => isActive(pathname, n.href));
   return <h1 className="text-[22px]">{item?.label ?? "Admin"}</h1>;
 }
+
+// Page-level action shown in the header bar (e.g. "Add question" on the question bank).
+export function AdminHeaderAction() {
+  const pathname = usePathname();
+  if (pathname !== "/admin/questions") return null;
+  return (
+    <Link href="/admin/questions?new=1" className="btn hidden sm:inline-flex">
+      <Icon name="plusCircle" size={16} />
+      Add question
+    </Link>
+  );
+}

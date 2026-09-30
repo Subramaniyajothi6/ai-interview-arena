@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
 import { FormAlert } from "@/components/ui/form";
 import { Icon } from "@/components/ui/icon";
-import { RESUME_MAX_BYTES } from "@/lib/constants";
 import type { ParsedResume } from "@/lib/resume/analyze";
 import { createClient } from "@/lib/supabase/client";
 import { processResume, attachExistingResume, type ProcessResumeResult } from "../../actions";
@@ -23,7 +22,9 @@ export function ResumeStep({
   userId,
   attached: initial,
   previous,
+  maxMb,
 }: {
+  maxMb: number;
   interviewId: string;
   userId: string;
   attached: Attached | null;
@@ -51,7 +52,7 @@ export function ResumeStep({
     setError(null);
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
     if (!EXT_TYPES[ext]) return setError("Upload a PDF, DOC or DOCX file.");
-    if (file.size > RESUME_MAX_BYTES) return setError("The file is larger than 5 MB.");
+    if (file.size > maxMb * 1024 * 1024) return setError(`The file is larger than ${maxMb} MB.`);
     if (file.size === 0) return setError("The file is empty.");
 
     setStatus("uploading");
@@ -110,7 +111,7 @@ export function ResumeStep({
           <span className="text-sm font-semibold text-text">
             Drag &amp; drop, or <span className="text-primary-600">browse</span>
           </span>
-          <span className="text-xs text-muted">PDF, DOC or DOCX · up to 5 MB</span>
+          <span className="text-xs text-muted">PDF, DOC or DOCX · up to {maxMb} MB</span>
         </label>
         <input
           ref={inputRef}
