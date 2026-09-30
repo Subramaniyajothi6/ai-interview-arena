@@ -2,6 +2,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { publicEnv } from "@/lib/env";
+import type { Database } from "./database.types";
 
 // Supabase client for Server Components, Server Actions and Route Handlers.
 // Acts as the signed-in user, so row level security still applies.
@@ -9,7 +10,7 @@ import { publicEnv } from "@/lib/env";
 export async function createClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(publicEnv.supabaseUrl, publicEnv.supabasePublishableKey, {
+  return createServerClient<Database>(publicEnv.supabaseUrl, publicEnv.supabasePublishableKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();

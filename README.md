@@ -75,4 +75,6 @@ docs/               PPT, UI/UX design, database, API and testing docs
 
 ## Documentation
 
-Database, API, testing and deployment documentation will be added in `docs/` as each part is built.
+- [Database](docs/DATABASE.md): schema, relationships, security model and migrations
+
+API, testing and deployment documentation will be added in `docs/` as each part is built.
