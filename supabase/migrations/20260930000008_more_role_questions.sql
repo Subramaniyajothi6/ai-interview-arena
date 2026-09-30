@@ -1,0 +1,20 @@
+-- Top up technical questions for HR and Business Development roles, and HR questions for all roles.
+insert into public.question_bank (question, job_role, skill, difficulty, interview_type, expected_answer) values
+('Which HR metrics would you track and why?', 'HR Executive', 'Recruitment', 'medium', 'technical',
+ 'Time-to-hire, cost-per-hire, offer acceptance rate, attrition and retention rates, absenteeism, engagement scores and training effectiveness; each tied to a decision it helps make.'),
+('How would you write an effective job description?', 'HR Executive', 'Recruitment', 'easy', 'technical',
+ 'Clear title, role purpose, key responsibilities, must-have vs nice-to-have skills, experience level, location and work mode, salary range where possible, inclusive language and a short company pitch.'),
+('How do you reduce bias in hiring?', 'HR Executive', 'Recruitment', 'hard', 'technical',
+ 'Structured interviews with the same questions and scoring rubric, diverse panels, skills-based assessments, anonymised screening where possible, inclusive job ads, interviewer training and tracking diversity metrics through the funnel.'),
+('How would you handle a performance improvement plan (PIP) fairly?', 'HR Executive', 'Employee Relations', 'expert', 'technical',
+ 'Document specific gaps with evidence, set clear measurable goals and a timeline, provide support and regular check-ins, keep it confidential, follow policy and law, and record the outcome objectively.'),
+('How do you qualify whether a lead is worth pursuing?', 'Business Development Executive', 'Lead Generation', 'medium', 'technical',
+ 'Check fit with the ideal customer profile, a real need, budget, decision-maker access and timeline (BANT/MEDDIC), engagement signals, and the effort-to-value ratio; disqualify early to focus time.'),
+('How would you build a partnership with another company to grow sales?', 'Business Development Executive', 'Negotiation', 'expert', 'technical',
+ 'Identify complementary partners with a shared customer base, define mutual value, start with a pilot, agree on responsibilities, revenue share and KPIs, enable their team, and review results regularly.'),
+('How do you follow up after a sales meeting?', 'Business Development Executive', 'Communication', 'easy', 'technical',
+ 'Send a same-day summary of needs discussed, agreed next steps and owners, share promised materials, schedule the next meeting, log everything in the CRM and follow up persistently but respectfully.'),
+('How do you handle stress and pressure at work?', null, 'Time Management', 'medium', 'hr',
+ 'Prioritises and breaks work into steps, communicates early when overloaded, uses healthy routines, gives a concrete example of performing under pressure.'),
+('What are your salary expectations?', null, 'Negotiation', 'medium', 'hr',
+ 'Gives a researched range based on market data and experience, stays flexible, shows interest in the whole package and the role rather than only money.');

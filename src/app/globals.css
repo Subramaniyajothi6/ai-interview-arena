@@ -267,8 +267,13 @@
   .opt:hover {
     border-color: var(--color-primary-300);
   }
+  .opt:has(input:focus-visible) {
+    outline: 2px solid var(--color-primary-600);
+    outline-offset: 2px;
+  }
   .opt[aria-pressed="true"],
-  .opt[aria-checked="true"] {
+  .opt[aria-checked="true"],
+  .opt:has(input:checked) {
     border: 2px solid var(--color-primary-600);
     background: var(--color-primary-50);
     color: var(--color-primary-900);

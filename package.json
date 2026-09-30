@@ -8,13 +8,17 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:push": "supabase db push",
+    "db:types": "supabase gen types typescript --linked --schema public > src/lib/supabase/database.types.ts",
+    "test:db": "node --env-file=.env.local scripts/test-db-security.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "clsx": "^2.1.1",
+    "mammoth": "^1.13.0",
     "next": "16.3.6",
     "openai": "^7.23.0",
     "react": "19.2.8",
@@ -22,6 +26,8 @@
     "react-hook-form": "^7.89.0",
     "recharts": "^3.10.1",
     "server-only": "^0.0.1",
+    "unpdf": "^1.8.1",
+    "word-extractor": "^1.0.4",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -29,6 +35,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/word-extractor": "^1.0.6",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "prettier": "^3.9.9",
