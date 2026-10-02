@@ -28,43 +28,97 @@ function shuffle<T>(items: T[]) {
   return a;
 }
 
+const norm = (s: string | null) => (s ?? "").trim().toLowerCase();
+
+// Asked when the job needs a skill the resume doesn't show and the bank has
+// no question for it.
+function gapQuestion(skill: string): PlannedQuestion {
+  return {
+    question: `The job asks for ${skill}. What do you know about it so far, and how would you use it in this role? If you haven't used it yet, how would you get up to speed?`,
+    skill,
+    source: "gap",
+    bank_question_id: null,
+    expected_points: `A basic understanding of what ${skill} is and what it is used for, how it applies to this role, an honest picture of the candidate's current level, and a concrete plan to learn it (resources, a small practice project, a timeline).`,
+  };
+}
+
 // Chooses interview questions from the question bank (no AI needed).
-// Preference order: same role + type + difficulty, then general questions
-// (all roles), then neighbouring difficulties. "Mixed" draws from every type.
-// If the resume lists a project, one question asks about it.
+// Skill gaps from the job description come first, as many as fit: bank
+// questions on each gap skill (round-robin across the gaps), or a written gap
+// question when the bank has none. Remaining slots: same role + type +
+// difficulty, then general questions (all roles), then neighbouring
+// difficulties. "Mixed" draws from every type. If the resume lists a project,
+// one question asks about it.
 export async function planQuestionsFromBank(config: {
   jobRole: Enums["job_role"];
   interviewType: Enums["interview_type"];
   difficulty: Enums["difficulty"];
   count: number;
   resume: ParsedResume | null;
+  gaps?: string[];
 }): Promise<PlannedQuestion[]> {
   const admin = createAdminClient();
-  let query = admin
+  const { data } = await admin
     .from("question_bank")
     .select("id, question, job_role, skill, difficulty, interview_type, expected_answer")
-    .eq("is_active", true)
-    .or(`job_role.eq."${config.jobRole}",job_role.is.null`);
-  if (config.interviewType !== "mixed") query = query.eq("interview_type", config.interviewType);
-  const { data } = await query;
-  const pool = data ?? [];
+    .eq("is_active", true);
+  const all = data ?? [];
 
   const target = DIFFICULTY_ORDER.indexOf(config.difficulty);
   const rank = (q: BankRow) =>
-    (q.job_role === config.jobRole ? 0 : 10) +
+    (q.job_role === config.jobRole ? 0 : q.job_role === null ? 5 : 10) +
+    (config.interviewType === "mixed" || q.interview_type === config.interviewType ? 0 : 4) +
     Math.abs(DIFFICULTY_ORDER.indexOf(q.difficulty) - target) * 3;
 
   // Shuffle first so equally good questions vary between interviews.
-  const ranked = shuffle(pool).sort((a, b) => rank(a) - rank(b));
+  const ranked = shuffle(all).sort((a, b) => rank(a) - rank(b));
+  const pool = ranked.filter(
+    (q) =>
+      (q.job_role === config.jobRole || q.job_role === null) &&
+      (config.interviewType === "mixed" || q.interview_type === config.interviewType),
+  );
 
   const project = config.resume?.projects?.[0];
-  const bankSlots = project ? config.count - 1 : config.count;
+  let bankSlots = project ? config.count - 1 : config.count;
+
+  // Gap questions: one per gap skill per round until the slots are used up.
+  const gapPlanned: PlannedQuestion[] = [];
+  const used = new Set<string>();
+  const gaps = [...new Set((config.gaps ?? []).filter(Boolean))];
+  const byGap = gaps.map((g) => ({
+    skill: g,
+    questions: ranked.filter((q) => norm(q.skill) === norm(g)),
+  }));
+  for (let round = 0; gapPlanned.length < bankSlots; round++) {
+    let added = false;
+    for (const gap of byGap) {
+      if (gapPlanned.length >= bankSlots) break;
+      const q = gap.questions[round];
+      if (q) {
+        used.add(q.id);
+        gapPlanned.push({
+          question: q.question,
+          skill: q.skill,
+          source: "gap",
+          bank_question_id: q.id,
+          expected_points: q.expected_answer,
+        });
+        added = true;
+      } else if (round === 0) {
+        gapPlanned.push(gapQuestion(gap.skill));
+        added = true;
+      }
+    }
+    if (!added) break;
+  }
+  bankSlots -= gapPlanned.length;
+  const remaining = pool.filter((q) => !used.has(q.id));
 
   let chosen: BankRow[];
   if (config.interviewType === "mixed") {
     // Round-robin across types so a mixed interview really is mixed.
     const byType = new Map<string, BankRow[]>();
-    for (const q of ranked)
+    for (const q of remaining)
       byType.set(q.interview_type, [...(byType.get(q.interview_type) ?? []), q]);
     chosen = [];
     while (chosen.length < bankSlots && [...byType.values()].some((l) => l.length)) {
@@ -74,7 +128,7 @@ export async function planQuestionsFromBank(config: {
       }
     }
   } else {
-    chosen = ranked.slice(0, bankSlots);
+    chosen = remaining.slice(0, bankSlots);
   }
 
   // Easier questions first, like a real interview warming up.
@@ -82,13 +136,17 @@ export async function planQuestionsFromBank(config: {
     (a, b) => DIFFICULTY_ORDER.indexOf(a.difficulty) - DIFFICULTY_ORDER.indexOf(b.difficulty),
   );
 
-  const planned: PlannedQuestion[] = chosen.map((q) => ({
-    question: q.question,
-    skill: q.skill,
-    source: "bank",
-    bank_question_id: q.id,
-    expected_points: q.expected_answer,
-  }));
+  // Gap questions first (the point of practising for this job), then the rest.
+  const planned: PlannedQuestion[] = [
+    ...gapPlanned,
+    ...chosen.map((q) => ({
+      question: q.question,
+      skill: q.skill,
+      source: "bank" as const,
+      bank_question_id: q.id,
+      expected_points: q.expected_answer,
+    })),
+  ];
 
   if (project) {
     const name = project

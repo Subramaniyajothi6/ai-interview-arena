@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
+import { getAi } from "@/lib/ai/client";
 import { firstName, requireUser } from "@/lib/auth";
 import { formatDuration } from "@/lib/format";
 
@@ -32,6 +33,7 @@ export default async function CompletePage({ params }: PageProps<"/interview/[id
   const skipped = (answers ?? []).length - answered;
   const hasReport = Boolean(iv.interview_reports);
   const ended = iv.status === "abandoned";
+  const aiOn = !hasReport && Boolean(await getAi());
 
   return (
     <>
@@ -74,10 +76,20 @@ export default async function CompletePage({ params }: PageProps<"/interview/[id
           {!hasReport && (
             <div className="flex w-full gap-3 rounded-xl bg-primary-50 p-4 text-left text-[13px] leading-normal text-primary-900">
               <Icon name="sparkle" size={16} className="mt-0.5" />
-              <p>
-                <b>AI evaluation is not enabled yet.</b> Your answers are stored and will be scored,
-                with a full report and improvement plan, once AI evaluation is switched on.
-              </p>
+              {!aiOn ? (
+                <p>
+                  <b>AI evaluation is not enabled yet.</b> Your answers are stored and will be
+                  scored, with a full report and improvement plan, once AI evaluation is switched
+                  on.
+                </p>
+              ) : answered === 0 ? (
+                <p>You didn&apos;t answer any questions, so there is nothing to score this time.</p>
+              ) : (
+                <p>
+                  <b>Your report isn&apos;t ready yet.</b> Open it and choose{" "}
+                  <b>Prepare my report</b> to try again.
+                </p>
+              )}
             </div>
           )}
 

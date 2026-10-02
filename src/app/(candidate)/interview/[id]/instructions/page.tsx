@@ -5,6 +5,7 @@ import { Icon, type IconName } from "@/components/ui/icon";
 import { Stepper } from "@/components/ui/stepper";
 import { requireUser } from "@/lib/auth";
 import { difficultyLabel, experienceLabel, typeLabel } from "@/lib/format";
+import { readJobMatch } from "@/lib/interview/job-match";
 import { StartPanel } from "./start-panel";
 
 export const metadata: Metadata = { title: "Instructions" };
@@ -17,7 +18,7 @@ export default async function InstructionsPage({
   const { data: iv } = await supabase
     .from("interviews")
     .select(
-      "id, status, job_role, experience_level, interview_type, difficulty, question_count, resume_id",
+      "id, status, job_role, experience_level, interview_type, difficulty, question_count, resume_id, job_match",
     )
     .eq("id", id)
     .eq("user_id", user.id)
@@ -27,12 +28,22 @@ export default async function InstructionsPage({
   if (!iv.resume_id) redirect(`/interview/${id}/resume`);
 
   const minutes = Math.round(iv.question_count * 3.25);
+  const gaps = readJobMatch(iv.job_match)?.gaps ?? [];
   const items: { icon: IconName; title: string; text: string }[] = [
     {
       icon: "clock",
       title: `About ${iv.question_count} questions, ${minutes}–${minutes + 5} minutes`,
       text: "Chosen for your setup and resume.",
     },
+    ...(gaps.length
+      ? [
+          {
+            icon: "target" as const,
+            title: "Starts with the skills this job needs",
+            text: `Questions on ${gaps.slice(0, 4).join(", ")}${gaps.length > 4 ? ` and ${gaps.length - 4} more` : ""} — the gaps between your resume and the job description.`,
+          },
+        ]
+      : []),
     {
       icon: "mic",
       title: "Answer by text or voice",
@@ -58,7 +69,7 @@ export default async function InstructionsPage({
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-5">
       <div className="card !px-6 !py-4">
-        <Stepper current={2} />
+        <Stepper current={3} />
       </div>
       <div className="flex flex-col gap-5 lg:flex-row">
         <section className="card flex grow flex-col gap-5 !p-7">

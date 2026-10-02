@@ -16,6 +16,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   experimental: {
+    // Job-description files (up to 2 MB) are sent to a server action; the
+    // default 1 MB request limit would reject them before our own check.
+    serverActions: { bodySizeLimit: "3mb" },
     // Links and server actions wait and retry while offline instead of failing
     // (which made the browser show its own "no internet" page).
     useOffline: true,

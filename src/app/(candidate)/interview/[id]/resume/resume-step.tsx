@@ -189,7 +189,7 @@ export function ResumeStep({
             Back
           </Link>
           {attached && !busy ? (
-            <Link href={`/interview/${interviewId}/instructions`} className="btn">
+            <Link href={`/interview/${interviewId}/job`} className="btn">
               Continue
               <Icon name="arrowRight" size={16} />
             </Link>
@@ -254,7 +254,9 @@ function AnalysisPanel({ parsed, busy }: { parsed: ParsedResume | null; busy: bo
         <>
           <p className="text-[13px] text-muted">
             Here&apos;s what we found. Your questions will draw on this.
-            {parsed.method === "keyword" && " Skills are matched against our skills list."}
+            {parsed.method === "keyword"
+              ? " Skills are matched against our skills list."
+              : " Read by AI from your resume."}
           </p>
           <div className="grid gap-3.5 sm:grid-cols-2">
             {boxes.map((b) => (

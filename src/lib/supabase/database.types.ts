@@ -480,6 +480,8 @@ export type Database = {
           experience_level: Database["public"]["Enums"]["experience_level"]
           id: string
           interview_type: Database["public"]["Enums"]["interview_type"]
+          job_description: string | null
+          job_match: Json | null
           job_role: Database["public"]["Enums"]["job_role"]
           overall_score: number | null
           question_count: number
@@ -495,6 +497,8 @@ export type Database = {
           experience_level: Database["public"]["Enums"]["experience_level"]
           id?: string
           interview_type: Database["public"]["Enums"]["interview_type"]
+          job_description?: string | null
+          job_match?: Json | null
           job_role: Database["public"]["Enums"]["job_role"]
           overall_score?: number | null
           question_count?: number
@@ -510,6 +514,8 @@ export type Database = {
           experience_level?: Database["public"]["Enums"]["experience_level"]
           id?: string
           interview_type?: Database["public"]["Enums"]["interview_type"]
+          job_description?: string | null
+          job_match?: Json | null
           job_role?: Database["public"]["Enums"]["job_role"]
           overall_score?: number | null
           question_count?: number
@@ -782,7 +788,7 @@ export type Database = {
         | "Digital Marketing Executive"
         | "HR Executive"
         | "Business Development Executive"
-      question_source: "ai" | "bank" | "follow_up" | "resume"
+      question_source: "ai" | "bank" | "follow_up" | "resume" | "gap"
       resume_status: "uploaded" | "analyzed" | "failed"
       skill_source: "resume" | "manual"
       user_role: "candidate" | "admin"
@@ -936,7 +942,7 @@ export const Constants = {
         "HR Executive",
         "Business Development Executive",
       ],
-      question_source: ["ai", "bank", "follow_up", "resume"],
+      question_source: ["ai", "bank", "follow_up", "resume", "gap"],
       resume_status: ["uploaded", "analyzed", "failed"],
       skill_source: ["resume", "manual"],
       user_role: ["candidate", "admin"],

@@ -369,6 +369,9 @@ export function InterviewRoom({
                   {current.source === "resume" && (
                     <span className="chip chip-n">Based on: your resume</span>
                   )}
+                  {current.source === "gap" && (
+                    <span className="chip chip-warn">Skill gap from the job description</span>
+                  )}
                   {current.skill && <span className="chip">Skill: {current.skill}</span>}
                 </div>
               </div>
@@ -568,6 +571,9 @@ export function InterviewRoom({
                 </span>
                 {q.source === "follow_up" && (
                   <span className="chip !h-5 !px-1.5 !text-[10px]">AI</span>
+                )}
+                {q.source === "gap" && (
+                  <span className="chip chip-warn !h-5 !px-1.5 !text-[10px]">Gap</span>
                 )}
                 {q.status === "skipped" && (
                   <span className="chip chip-n !h-5 !px-1.5 !text-[10px]">Skipped</span>

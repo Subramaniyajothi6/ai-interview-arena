@@ -1,7 +1,13 @@
 import { Fragment } from "react";
 import { Icon } from "./icon";
 
-export const INTERVIEW_STEPS = ["Interview setup", "Resume", "Instructions", "Interview"] as const;
+export const INTERVIEW_STEPS = [
+  "Interview setup",
+  "Resume",
+  "Job description",
+  "Instructions",
+  "Interview",
+] as const;
 
 // Progress through the new-interview flow. `current` is 0-based.
 export function Stepper({
@@ -37,7 +43,9 @@ export function Stepper({
                 {done ? <Icon name="check" size={15} strokeWidth={2.5} /> : i + 1}
               </span>
               <span
-                className={`hidden text-sm sm:inline ${active ? "font-semibold text-text" : done ? "font-medium text-text" : "font-medium text-muted"}`}
+                // Five labels only fit side by side on wide screens; the current
+                // step is always named.
+                className={`text-sm ${active ? "max-sm:hidden" : "hidden xl:inline"} ${active ? "font-semibold text-text" : done ? "font-medium text-text" : "font-medium text-muted"}`}
               >
                 {step}
               </span>

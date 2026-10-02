@@ -25,7 +25,7 @@ export function StartPanel({ interviewId }: { interviewId: string }) {
         I&apos;ve read the instructions
       </label>
       <div className="flex justify-between gap-3">
-        <Link href={`/interview/${interviewId}/resume`} className="btn btn-sec">
+        <Link href={`/interview/${interviewId}/job`} className="btn btn-sec">
           <Icon name="arrowLeft" size={16} />
           Back
         </Link>

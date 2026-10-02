@@ -13,6 +13,7 @@ AI Interview Arena uses **Supabase PostgreSQL** with row level security (RLS), S
 | `…07_more_questions.sql`, `…08_more_role_questions.sql` | 64 more questions — 129 in total, at least 8 per role for technical interviews |
 | `…09_ai_provider_setting.sql` | AI provider choice in the admin settings |
 | `…10_avatars.sql` | Public `avatars` bucket for profile photos (JPG/PNG/WebP, 2 MB); users write only in their own folder |
+| `…11_job_description.sql` | Optional `job_description` and `job_match` on interviews; `gap` question source (questions on skills the job needs that the resume doesn't show) |
 
 ## Entity relationships
 
@@ -43,7 +44,7 @@ erDiagram
 | `candidate_skills` | Skills a candidate has, from their resume or added manually. | `user_id`, `skill_id`, `source` |
 | `resumes` | Uploaded resume file and the AI-extracted profile. | `storage_path`, `file_type`, `file_size` (≤ 5 MB), `raw_text`, `parsed` (JSON), `status` |
 | `question_bank` | Curated questions managed by admins. `job_role` null = all roles. | `question`, `job_role`, `skill`, `difficulty`, `interview_type`, `expected_answer`, `is_active` |
-| `interviews` | One mock interview and its configuration. | `job_role`, `experience_level`, `interview_type`, `difficulty`, `status`, `started_at`, `ended_at`, `overall_score` |
+| `interviews` | One mock interview and its configuration. | `job_role`, `experience_level`, `interview_type`, `difficulty`, `status`, `started_at`, `ended_at`, `overall_score`, `job_description` (optional), `job_match` (resume vs job: `required`, `matched`, `gaps`, `match_percent`) |
 | `interview_questions` | Main questions (`source`: `bank`, `resume` or `ai`) and AI follow-ups. Follow-ups share the parent's `position` with `follow_up_index` 1, 2… (shown as Q3a, Q3b). | `position`, `follow_up_index`, `parent_id`, `question`, `skill`, `source`, `bank_question_id`, `expected_points` (server only) |
 | `candidate_answers` | The candidate's answer to a question (typed or voice transcript). | `question_id` (unique), `answer_text`, `mode`, `skipped`, `duration_seconds` |
 | `ai_evaluations` | AI scores (0–100) for one answer. **Estimates, not objective measurements.** | `technical_accuracy`, `relevance`, `communication`, `clarity`, `completeness`, `problem_solving`, `answer_quality`, `question_score`, `feedback`, `needs_follow_up` |
@@ -60,6 +61,7 @@ erDiagram
 | `interview_type` | `technical`, `hr`, `behavioral`, `managerial`, `mixed` |
 | `difficulty` | `easy`, `medium`, `hard`, `expert` |
 | `interview_status` | `setup` → `ready` → `in_progress` → `completed` (or `abandoned`) |
+| `question_source` | `bank`, `resume` (resume project), `gap` (skill gap from the job description), `follow_up`, `ai` |
 
 These match `src/lib/constants.ts`.
 

@@ -61,6 +61,11 @@ export const RESUME_MIME_TYPES = {
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
 } as const;
 
+// Job description the candidate practises for (pasted text or a PDF/DOC/DOCX).
+export const JOB_DESCRIPTION_MIN_CHARS = 30;
+export const JOB_DESCRIPTION_MAX_CHARS = 20_000;
+export const JOB_DESCRIPTION_FILE_MAX_BYTES = 2 * 1024 * 1024;
+
 export const AI_ESTIMATE_NOTE = "AI-generated estimate — not an objective measurement of ability.";
 
 export function labelFor<T extends { value: string; label: string }>(

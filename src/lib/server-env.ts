@@ -20,8 +20,27 @@ export const serverEnv = {
   get openaiApiKey() {
     return required("OPENAI_API_KEY");
   },
+  // Null while the key is missing or still the placeholder from .env.example.
+  get openaiApiKeyOrNull() {
+    const key = process.env.OPENAI_API_KEY?.trim();
+    return key && key.length > 20 && key !== "sk-xxx" ? key : null;
+  },
   get openaiModel() {
     return process.env.OPENAI_MODEL || "gpt-4o-mini";
+  },
+  // Open-source models through an OpenAI-compatible host (default: Groq).
+  get openSourceAiKey() {
+    const key = process.env.OPEN_SOURCE_AI_API_KEY?.trim();
+    return key && key.length > 20 ? key : null;
+  },
+  get openSourceAiBaseUrl() {
+    return process.env.OPEN_SOURCE_AI_BASE_URL || "https://api.groq.com/openai/v1";
+  },
+  get openSourceAiModel() {
+    return process.env.OPEN_SOURCE_AI_MODEL || "openai/gpt-oss-120b";
+  },
+  get openSourceAiFastModel() {
+    return process.env.OPEN_SOURCE_AI_FAST_MODEL || "openai/gpt-oss-20b";
   },
   get openaiTranscribeModel() {
     return process.env.OPENAI_TRANSCRIBE_MODEL || "whisper-1";

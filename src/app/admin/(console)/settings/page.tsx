@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { aiStatus } from "@/lib/ai/client";
 import { PersonCell } from "@/components/admin/admin-ui";
 import { requireAdmin } from "@/lib/auth";
 import { removeAdmin } from "../actions";
@@ -70,6 +71,7 @@ export default async function SettingsPage() {
     <div className="mx-auto max-w-[1216px]">
       <SettingsCards
         adminCard={adminCard}
+        aiStatus={aiStatus()}
         settings={{
           questionsPerInterview: s?.questions_per_interview ?? 8,
           maxFollowUps: s?.max_follow_ups_per_question ?? 2,

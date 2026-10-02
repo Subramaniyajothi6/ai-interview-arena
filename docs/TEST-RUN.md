@@ -6,7 +6,7 @@ and how each problem is fixed. Automated suites are described in [TESTING.md](./
 | | |
 |---|---|
 | Started | 2026-10-02 |
-| Environment | `npm run dev` on localhost:3000, Supabase project `ai-interview-arena` |
+| Environment | `npm run dev` on localhost:3000 (A–C5), then production https://ai-interview-arena-mu.vercel.app (from 2026-10-02 evening); same Supabase project `ai-interview-arena` |
 | Browser | Chrome, desktop + DevTools device emulation |
 | AI | Off (questions from the bank, keyword resume analysis, "Evaluation pending" reports) |
 
@@ -20,13 +20,15 @@ and how each problem is fixed. Automated suites are described in [TESTING.md](./
 
 | Part | Steps | ✅ | ❌ / 🔧 | ⏸️ | ⬜ |
 |---|---|---|---|---|---|
-| A. New candidate | 5 sections | 3 (A2 except email, A4, A5) | 1 | 1 | 1 (A1) |
+| A. New candidate | 5 sections | 4 (A2–A5) | 0 (1 fixed) | 0 | 1 (A1) |
 | B. An interview | 6 sections | 6 (all) | 0 (2 fixed) | 0 | 0 |
-| C. Admin | 7 sections | 4 (C1–C4) | 1 fixed (C5) | 0 | 2 (C6–C7) + rest of C5 |
-| D. Edge cases | 7 cases | 0 | 0 | 1 | 6 |
+| C. Admin | 7 sections | 5 (C1–C5) | 0 (2 fixed) | 0 | 2 (C6–C7) |
+| D. Edge cases | 7 cases | 0 | 0 | 0 | 7 |
 | E. Different data | 25 checks | 0 | 0 | 0 | 25 |
+| F. Job description | 11 checks | 0 | 0 | 0 | 11 |
+| G. AI | 14 checks | 14 local | 0 | 0 | 14 production |
 
-Open issues: **0** · Fixed, awaiting re-test: **2** · Closed: **3**
+Open issues: **0** · Fixed, awaiting re-test: **0** · Closed: **5**
 
 ---
 
@@ -67,13 +69,13 @@ Currently loaded on `sample@gmail.com`: **rich** (2026-10-02).
 |---|---|---|---|---|
 | 1 | Click Get started, click Create account with everything empty | Red message under each field, plus one about the Terms | ✅ | |
 | 2 | Fill name, email, password (8+), confirm password, tick Terms | Fields accept input | ✅ | |
-| 3 | Click Create account | Green "We sent a confirmation link to …" | 🔧 | [#1](#1--sign-up-shows-a-generic-error) — 2026-10-02 re-run with Confirm email off: account created, logged straight in to the Dashboard. Confirmation-email path still to re-test |
+| 3 | Click Create account | Green "We sent a confirmation link to …" | ✅ (after fix) | [#1](#1--sign-up-shows-a-generic-error) — re-tested on production with Gmail SMTP |
 
 ### A3. Confirm the email
 
 | # | Step | Expected | Result | Issue |
 |---|---|---|---|---|
-| 1 | Open the email, click the link | Logged in, on the Dashboard | ⏸️ | [#1](#1--sign-up-shows-a-generic-error) — skipped while Confirm email is off |
+| 1 | Open the email, click the link | Logged in, on the Dashboard | ✅ | Production: email arrived, link opened the live Dashboard |
 
 ### A4. Empty dashboard
 
@@ -190,10 +192,10 @@ Currently loaded on `sample@gmail.com`: **rich** (2026-10-02).
 
 | # | Step | Expected | Result | Issue |
 |---|---|---|---|---|
-| 1 | Add question → save empty | Errors under each field | 🔧 | [#5](#5--a-failed-save-wipes-what-was-typed-question-bank-also-settings-and-profile) |
-| 2 | Fill in properly, save | Appears in the list | 🔧 | [#5](#5--a-failed-save-wipes-what-was-typed-question-bank-also-settings-and-profile) |
-| 3 | Edit, save again | Changes shown | ⬜ | |
-| 4 | Delete it | Removed from the list | ⬜ | |
+| 1 | Add question → save empty | Errors under each field | ✅ (after fix, production) | [#5](#5--a-failed-save-wipes-what-was-typed-question-bank-also-settings-and-profile) |
+| 2 | Fill in properly, save | Appears in the list | ✅ (after fix, production) | [#5](#5--a-failed-save-wipes-what-was-typed-question-bank-also-settings-and-profile) |
+| 3 | Edit, save again | Changes shown | ✅ | |
+| 4 | Delete it | Removed from the list | ✅ | |
 
 ### C6. Settings
 
@@ -218,7 +220,7 @@ Currently loaded on `sample@gmail.com`: **rich** (2026-10-02).
 | # | Case | Expected | Result | Issue |
 |---|---|---|---|---|
 | 1 | Wrong password 5+ times quickly | Eventually "Too many sign-in attempts…" | ⬜ | |
-| 2 | Session ended elsewhere: log in in two browsers, change password in one (Forgot password → email link), reload the other | "Your session has expired", no endless redirect | ⏸️ | [#1](#1--sign-up-shows-a-generic-error) (needs an email) |
+| 2 | Session ended elsewhere: log in in two browsers, change password in one (Forgot password → email link), reload the other | "Your session has expired", no endless redirect | ⬜ | (unblocked — email works) |
 | 3 | Remember me unticked | Logged out after closing Chrome, or after 12 h at most | ⬜ | |
 | 4 | Open /xyz | Friendly 404 page | ⬜ | |
 | 5 | Open another user's report ID as the candidate | 404 page, not their data | ⬜ | |
@@ -266,6 +268,49 @@ Currently loaded on `sample@gmail.com`: **rich** (2026-10-02).
 
 ---
 
+## Part F: Job description (added 2026-10-02)
+
+Automated: `npm run test:job` — 33/33 passed locally. Manual checks below are for the live site.
+
+| # | Step | Expected | Result | Issue |
+|---|---|---|---|---|
+| 1 | New interview → setup → resume → Continue | Step 3 "Job description (optional)" opens; stepper shows 5 steps | ⬜ | |
+| 2 | Click Compare with resume with a few words only | "Paste the job description first…" | ⬜ | |
+| 3 | Paste a real job post → Compare with resume | Match %, "Skills to work on", "Already on your resume"; Continue appears | ⬜ | |
+| 4 | Edit the text | Result marked out of date; button becomes "Compare again" | ⬜ | |
+| 5 | Upload a job description PDF/DOCX | Text fills the box and the comparison runs; a .txt is rejected | ⬜ | |
+| 6 | Continue → Instructions | "Starts with the skills this job needs" lists the gaps | ⬜ | |
+| 7 | Start interview | First questions are on the gap skills, labelled "Skill gap from the job description" | ⬜ | |
+| 8 | Finish or end → report | "Job match" section: each gap with Answered / Skipped / Not reached, "What to learn next"; gap questions labelled "Skill gap"; Download includes it | ⬜ | |
+| 9 | New interview → Job description → Skip | Instructions without the gap note; normal questions; no Job match on the report | ⬜ | |
+| 10 | Admin → Interviews → that interview | Job description card (match %, gaps, full text); questions labelled "Skill gap (job description)" | ⬜ | |
+| 11 | Phone width | Job step fits with no sideways scroll; after comparing, the page scrolls to the result | ⬜ | |
+
+---
+
+## Part G: AI (open-source gpt-oss via Groq, added 2026-10-03)
+
+Automated: `npm run test:ai` — 18/18 passed locally. Manual checks below: first on localhost, then production.
+
+| # | Step | Expected | Local | Production | Issue |
+|---|---|---|---|---|---|
+| 1 | Admin → Settings → AI service | "Open-source AI model: Connected — Groq · openai/gpt-oss-120b"; Provider = Open-source AI model | ✅ | ⬜ | |
+| 2 | New interview → upload your real resume | Analysis fills in within ~10 s and says "Read by AI"; entries look right | ✅ | ⬜ | |
+| 3 | Paste a real job post → Compare with resume | Sensible gaps and matched skills (not only exact keywords) | ✅ | ⬜ | |
+| 4 | Start interview | Questions fit your resume, the role and the gaps; one about a resume project | ✅ | ⬜ | |
+| 5 | Give one good, detailed answer | Next question within a few seconds | ✅ | ⬜ | |
+| 6 | Give one short, vague answer | A follow-up (e.g. Q2a) appears asking for the missing detail | ✅ | ⬜ | |
+| 7 | Answer by voice once | Transcript is scored like typed text | ✅ | ⬜ | |
+| 8 | Finish all questions (or End interview) | Report within ~10 s: overall score, 7 criteria, strengths, improvements, feedback per question | ✅ | ⬜ | |
+| 9 | Report → scores make sense | Good answer clearly higher than the vague one; feedback refers to what you said | ✅ | ⬜ | |
+| 10 | Improvement Plan | 5 weeks, topics with priorities, practice questions, 2 projects, tips — aimed at your gaps | ✅ | ⬜ | |
+| 11 | Plan → Regenerate | New plan appears after a few seconds | ✅ | ⬜ | |
+| 12 | Dashboard / History | Score, charts and "Where you stand" fill in from the new report | ✅ | ⬜ | |
+| 13 | Admin → Interviews → that interview | Scores, AI feedback, follow-ups and expected answers shown | ✅ | ⬜ | |
+| 14 | Admin → Settings → Allow AI follow-ups off → new interview with vague answers | No follow-ups; turn it back on afterwards | ✅ | ⬜ | |
+
+---
+
 ## Issues
 
 Each issue: where it happened, what was expected, what actually happened, the root cause, the fix,
@@ -277,7 +322,7 @@ and how it was re-tested.
 |---|---|
 | Found at | A2 step 3 (Create account) · also blocks A3 and D2 |
 | Severity | Major — blocks sign-up; would hit real users after deploy |
-| Status | **Fixed – awaiting re-test of the email path** (sign-up itself confirmed working with Confirm email off) |
+| Status | **Closed** — 2026-10-02: Gmail SMTP configured, Confirm email on, real sign-up on production received the email and the link opened the live Dashboard |
 | Screen | Mobile emulation (549 px), Chrome DevTools |
 
 **Expected:** green "We sent a confirmation link to …".
@@ -429,7 +474,7 @@ scored interview → View final report works.
 |---|---|
 | Found at | C5 (Add question) · same weakness in C6 (settings) and A5 (profile) |
 | Severity | Major — the question could not be added in practice; edits were silently lost |
-| Status | **Fixed – awaiting re-test** |
+| Status | **Closed** — re-tested by the user on production 2026-10-02 |
 
 **Expected:** if a field is invalid, show the error and keep everything else that was typed.
 
@@ -487,5 +532,5 @@ listed → edit → delete.
 
 ## Before deploy (collected from issues)
 
-- [ ] Custom SMTP sender in Supabase (#1)
-- [ ] "Confirm email" turned back on in Supabase (#1 workaround)
+- [x] Custom SMTP sender in Supabase (#1) — Gmail SMTP (smtp.gmail.com:465), 30 emails/h
+- [x] "Confirm email" turned back on in Supabase (#1 workaround)

@@ -46,9 +46,12 @@ function Switch({
 export function SettingsCards({
   settings: saved,
   adminCard,
+  aiStatus,
 }: {
   settings: Settings;
   adminCard: React.ReactNode;
+  // Model label per provider, or null when that provider has no API key.
+  aiStatus: Record<"openai" | "open_source", string | null>;
 }) {
   const [state, action] = useActionState<AdminFormState, FormData>(saveSettings, {});
   const err = state.fieldErrors ?? {};
@@ -153,6 +156,28 @@ export function SettingsCards({
               <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />
             </svg>
             Only the data needed for each request is sent to the AI service.
+          </p>
+          <ul className="flex flex-col gap-1.5 text-[13px]">
+            {(
+              [
+                ["open_source", "Open-source AI model", "OPEN_SOURCE_AI_API_KEY"],
+                ["openai", "OpenAI API", "OPENAI_API_KEY"],
+              ] as const
+            ).map(([key, name, env]) => (
+              <li key={key} className="flex flex-wrap items-center gap-2">
+                <span className={`chip ${aiStatus[key] ? "chip-ok" : "chip-n"}`}>
+                  {aiStatus[key] ? "Connected" : "No key"}
+                </span>
+                <span className="font-semibold">{name}</span>
+                <span className="text-muted">
+                  {aiStatus[key] ?? `set ${env} on the server to enable`}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs text-muted">
+            Without a connected provider the app uses keyword resume analysis and the question bank,
+            and reports show &ldquo;Evaluation pending&rdquo;.
           </p>
         </section>
 

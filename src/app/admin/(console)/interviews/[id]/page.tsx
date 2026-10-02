@@ -13,6 +13,7 @@ import {
   STATUS_LABELS,
   typeLabel,
 } from "@/lib/format";
+import { readJobMatch } from "@/lib/interview/job-match";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -140,6 +141,8 @@ export default async function AdminInterviewDetailPage({
         </div>
       </section>
 
+      {iv.job_description && <JobDescriptionCard text={iv.job_description} match={iv.job_match} />}
+
       <div className="flex items-baseline justify-between">
         <h2 className="text-lg">Interview evaluation</h2>
         <span className="text-xs text-muted">Scores are AI-generated estimates</span>
@@ -174,7 +177,9 @@ export default async function AdminInterviewDetailPage({
                       ? `Follow-up to Q${q.position}`
                       : q.source === "resume"
                         ? "From resume"
-                        : "Main question"}
+                        : q.source === "gap"
+                          ? "Skill gap (job description)"
+                          : "Main question"}
                   </span>
                   {q.skill && <span className="chip chip-n !h-6">{q.skill}</span>}
                 </span>
@@ -270,5 +275,52 @@ export default async function AdminInterviewDetailPage({
         )}
       </section>
     </div>
+  );
+}
+
+// The job description the candidate practised for and how it compares with
+// their resume.
+function JobDescriptionCard({ text, match: raw }: { text: string; match: unknown }) {
+  const match = readJobMatch(raw);
+  return (
+    <section className="card flex flex-col gap-3 !px-6 !py-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-base">
+          <span className="text-primary-600">
+            <Icon name="target" size={18} />
+          </span>
+          Job description
+        </h2>
+        {match?.match_percent !== null && match?.match_percent !== undefined && (
+          <span className="text-sm text-muted">
+            Resume match <b className="text-text">{match.match_percent}%</b> · {match.gaps.length}{" "}
+            skill gap{match.gaps.length === 1 ? "" : "s"}
+          </span>
+        )}
+      </div>
+      {match && match.required.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {match.gaps.map((g) => (
+            <span key={g} className="chip chip-warn">
+              Gap: {g}
+            </span>
+          ))}
+          {match.matched.map((m) => (
+            <span key={m} className="chip chip-ok">
+              <Icon name="check" size={12} strokeWidth={2.5} />
+              {m}
+            </span>
+          ))}
+        </div>
+      )}
+      <details className="text-[13px]">
+        <summary className="cursor-pointer font-semibold text-primary-600">
+          Show the full job description
+        </summary>
+        <p className="mt-2 max-h-80 overflow-y-auto rounded-control bg-bg p-3 leading-relaxed whitespace-pre-wrap text-text-2">
+          {text}
+        </p>
+      </details>
+    </section>
   );
 }

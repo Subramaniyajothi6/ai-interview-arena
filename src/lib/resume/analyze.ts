@@ -14,7 +14,7 @@ export type ParsedResume = {
   experience_years: number | null;
 };
 
-type SkillRow = { name: string; category: string | null };
+export type SkillRow = { name: string; category: string | null };
 
 // Alternative spellings that should count as a known skill.
 const ALIASES: Record<string, string[]> = {
@@ -91,6 +91,14 @@ function sectionItems(lines: string[], start: number) {
   return items;
 }
 
+// Known skills mentioned in a text (by name or a common alias), in list order.
+// Shared by the resume analysis and the job-description comparison.
+export function findSkills<T extends { name: string }>(text: string, knownSkills: T[]): T[] {
+  return knownSkills.filter((s) =>
+    [s.name, ...(ALIASES[s.name] ?? [])].some((term) => mentions(text, term)),
+  );
+}
+
 // Rule-based analysis used when no AI provider is configured: finds known
 // skills and the main resume sections. Deterministic and free.
 export function analyzeResumeText(text: string, knownSkills: SkillRow[]): ParsedResume {
@@ -99,9 +107,7 @@ export function analyzeResumeText(text: string, knownSkills: SkillRow[]): Parsed
     .map((l) => l.trim())
     .filter(Boolean);
 
-  const found = knownSkills.filter((s) =>
-    [s.name, ...(ALIASES[s.name] ?? [])].some((term) => mentions(text, term)),
-  );
+  const found = findSkills(text, knownSkills);
   const isTech = (s: SkillRow) =>
     TECHNOLOGY_CATEGORIES.has(s.category ?? "") || TECHNOLOGY_NAMES.has(s.name);
 

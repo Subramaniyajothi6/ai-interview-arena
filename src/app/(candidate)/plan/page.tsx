@@ -3,7 +3,9 @@ import Link from "next/link";
 import { PrintButton } from "@/components/admin/print-button";
 import { PracticeQuestions } from "./practice-questions";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { getAi } from "@/lib/ai/client";
 import { requireUser } from "@/lib/auth";
+import { GenerateReportButton } from "../reports/[id]/generate-report";
 import { experienceLabel, formatDate, nowMs, typeLabel } from "@/lib/format";
 import {
   planList,
@@ -31,6 +33,7 @@ export default async function PlanPage() {
     .maybeSingle();
 
   if (!plan) return <NoPlan />;
+  const aiOn = Boolean(await getAi());
 
   const weeks = planList<PlanWeek>(plan.weeks);
   const topics = planList<PlanTopic>(plan.recommended_topics);
@@ -60,16 +63,24 @@ export default async function PlanPage() {
           </p>
         </div>
         <div className="flex gap-2.5 print:hidden">
-          {/* A new plan needs the AI step, so this stays off until AI evaluation is enabled. */}
-          <button
-            type="button"
-            className="btn btn-sec"
-            disabled
-            title="Available once AI evaluation is enabled"
-          >
-            <Icon name="refresh" size={16} />
-            Regenerate
-          </button>
+          {aiOn ? (
+            <GenerateReportButton
+              interviewId={plan.interview_id}
+              label="Regenerate"
+              className="btn btn-sec"
+            />
+          ) : (
+            // A new plan needs the AI step, so this stays off until AI is enabled.
+            <button
+              type="button"
+              className="btn btn-sec"
+              disabled
+              title="Available once AI evaluation is enabled"
+            >
+              <Icon name="refresh" size={16} />
+              Regenerate
+            </button>
+          )}
           <PrintButton label="Download plan" className="btn btn-sec" />
         </div>
       </div>

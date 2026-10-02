@@ -5,6 +5,7 @@ import { PrintButton } from "@/components/admin/print-button";
 import { CriteriaBars } from "@/components/ui/criteria-bars";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { ScoreRing } from "@/components/ui/score-ring";
+import { getAi } from "@/lib/ai/client";
 import { requireUser } from "@/lib/auth";
 import { AI_ESTIMATE_NOTE } from "@/lib/constants";
 import {
@@ -15,8 +16,10 @@ import {
   STATUS_LABELS,
   typeLabel,
 } from "@/lib/format";
+import { readJobMatch, type JobMatch } from "@/lib/interview/job-match";
 import type { Json } from "@/lib/supabase/database.types";
 import { planList, type PlanProject, type PlanQuestion, type PlanTopic } from "@/lib/plan";
+import { GenerateReportButton } from "./generate-report";
 
 export const metadata: Metadata = { title: "Evaluation report" };
 
@@ -29,7 +32,7 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
   const { data: iv } = await supabase
     .from("interviews")
     .select(
-      "id, status, job_role, experience_level, interview_type, difficulty, created_at, started_at, ended_at",
+      "id, status, job_role, experience_level, interview_type, difficulty, created_at, started_at, ended_at, job_match",
     )
     .eq("id", id)
     .eq("user_id", user.id)
@@ -86,12 +89,16 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
       e,
       label: `${q.position}${q.follow_up_index ? letter(q.follow_up_index) : ""}`,
       followUp: q.source === "follow_up",
+      gap: q.source === "gap",
       feedback: !a ? "Not answered" : a.skipped ? "Skipped" : e ? e.feedback : "Evaluation pending",
     };
   });
   const answeredCount = rows.filter((r) => r.a && !r.a.skipped).length;
   const skippedCount = rows.filter((r) => r.a?.skipped).length;
   const duration = formatDuration(iv.started_at, iv.ended_at);
+  const jobMatch = readJobMatch(iv.job_match);
+  const aiOn = !report && Boolean(await getAi());
+  const finished = iv.status === "completed" || iv.status === "abandoned";
 
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-5">
@@ -125,6 +132,14 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
           ],
           ["Status", STATUS_LABELS[iv.status].label],
           ["Overall score", report ? `${report.overall_score} / 100` : "Evaluation pending"],
+          ...(jobMatch && jobMatch.match_percent !== null
+            ? ([
+                [
+                  "Job match",
+                  `${jobMatch.match_percent}% · ${jobMatch.gaps.length} skill gap${jobMatch.gaps.length === 1 ? "" : "s"}`,
+                ],
+              ] as [string, string][])
+            : []),
         ]}
       />
       <div className="flex flex-wrap items-end justify-between gap-4 print:hidden">
@@ -234,13 +249,29 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
           <Icon name="sparkle" />
           <div className="text-[13px] leading-normal">
             <p className="font-semibold">Evaluation pending</p>
-            <p>
-              AI evaluation is not enabled yet. Your answers are listed below; scores, feedback,
-              strengths and an improvement plan will appear here once it is switched on.
-            </p>
+            {!aiOn ? (
+              <p>
+                AI evaluation is not enabled yet. Your answers are listed below; scores, feedback,
+                strengths and an improvement plan will appear here once it is switched on.
+              </p>
+            ) : !finished ? (
+              <p>Finish the interview to get your scores, feedback and improvement plan.</p>
+            ) : answeredCount === 0 ? (
+              <p>You didn&apos;t answer any questions, so there is nothing to score.</p>
+            ) : (
+              <>
+                <p className="mb-2">
+                  Your report wasn&apos;t ready when the interview ended (the AI service may have
+                  been busy). Your answers are saved — prepare it now.
+                </p>
+                <GenerateReportButton interviewId={iv.id} label="Prepare my report" />
+              </>
+            )}
           </div>
         </section>
       )}
+
+      {jobMatch && <JobMatchCard match={jobMatch} rows={rows} showScores={showScores} />}
 
       <PrintAnswers rows={rows} showScores={showScores} />
 
@@ -273,8 +304,16 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
                         {r.a && !r.a.skipped && <AnswerDetails answer={r.a} />}
                       </td>
                       <td className="!align-top">
-                        <span className={`chip ${r.followUp ? "" : "chip-n"}`}>
-                          {r.followUp ? "Follow-up" : "Main"}
+                        <span
+                          className={`chip ${r.followUp ? "" : r.gap ? "chip-warn" : "chip-n"}`}
+                        >
+                          {r.followUp
+                            ? "Follow-up"
+                            : r.gap
+                              ? "Skill gap"
+                              : r.q.source === "resume"
+                                ? "From resume"
+                                : "Main"}
                         </span>
                       </td>
                       <td className="!align-top font-display text-base font-bold">
@@ -304,6 +343,7 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
                       )}
                     </div>
                     {r.followUp && <span className="chip self-start">Follow-up</span>}
+                    {r.gap && <span className="chip chip-warn self-start">Skill gap</span>}
                     <span className="text-[13px] text-muted">{r.feedback}</span>
                     {r.a && !r.a.skipped && <AnswerDetails answer={r.a} />}
                   </div>
@@ -351,11 +391,12 @@ function PrintHeader({ name, details }: { name: string; details: [string, string
 }
 
 type Row = {
-  q: { id: string; question: string; skill: string | null };
+  q: { id: string; question: string; skill: string | null; source: string };
   a?: { answer_text: string | null; mode: string; skipped: boolean };
   e?: { question_score: number; feedback: string };
   label: string;
   followUp: boolean;
+  gap: boolean;
 };
 
 // Printed instead of the interactive breakdown: every question with the full answer.
@@ -367,7 +408,14 @@ function PrintAnswers({ rows, showScores }: { rows: Row[]; showScores: boolean }
         {rows.map((r) => (
           <li key={r.q.id} className="break-inside-avoid border-t border-border py-3">
             <p className="text-xs text-muted">
-              Q{r.label} · {r.followUp ? "Follow-up" : "Main question"}
+              Q{r.label} ·{" "}
+              {r.followUp
+                ? "Follow-up"
+                : r.gap
+                  ? "Skill gap"
+                  : r.q.source === "resume"
+                    ? "From resume"
+                    : "Main question"}
               {r.q.skill && ` · ${r.q.skill}`}
               {showScores && r.e && ` · Score ${r.e.question_score}/100`}
             </p>
@@ -389,6 +437,102 @@ function PrintAnswers({ rows, showScores }: { rows: Row[]; showScores: boolean }
         ))}
       </ol>
       <p className="mt-4 text-[11px] text-muted">{AI_ESTIMATE_NOTE}</p>
+    </section>
+  );
+}
+
+// Resume vs job description: the gaps and how the candidate did on them.
+function JobMatchCard({
+  match,
+  rows,
+  showScores,
+}: {
+  match: JobMatch;
+  rows: Row[];
+  showScores: boolean;
+}) {
+  const outcome = (skill: string) => {
+    const asked = rows.filter(
+      (r) => r.gap && (r.q.skill ?? "").toLowerCase() === skill.toLowerCase(),
+    );
+    if (asked.length === 0) return "Not asked (no slot left)";
+    const answered = asked.filter((r) => r.a && !r.a.skipped);
+    const scores = answered
+      .map((r) => r.e?.question_score)
+      .filter((n): n is number => typeof n === "number");
+    if (answered.length === 0) return asked.some((r) => r.a?.skipped) ? "Skipped" : "Not reached";
+    if (showScores && scores.length)
+      return `Answered · score ${Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)}`;
+    return `Answered${asked.length > 1 ? ` ${answered.length} of ${asked.length}` : ""} · evaluation pending`;
+  };
+  return (
+    <section className="card flex flex-col gap-4 print:break-inside-avoid">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h3 className="flex items-center gap-2 text-base">
+          <span className="text-primary-600">
+            <Icon name="target" size={18} />
+          </span>
+          Job match
+        </h3>
+        {match.match_percent !== null && (
+          <span className="text-sm text-muted">
+            <b className="font-display text-xl text-text">{match.match_percent}%</b> of the
+            job&apos;s skills are on your resume
+          </span>
+        )}
+      </div>
+      {match.required.length === 0 ? (
+        <p className="text-sm text-muted">
+          No skills from our list were found in the job description, so this interview followed your
+          role and resume.
+        </p>
+      ) : (
+        <>
+          {match.gaps.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold tracking-[0.06em] text-muted uppercase">
+                Skill gaps practised
+              </span>
+              <ul className="flex flex-col divide-y divide-border-soft rounded-xl border border-border-soft">
+                {match.gaps.map((g) => (
+                  <li
+                    key={g}
+                    className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5 text-sm"
+                  >
+                    <span className="chip chip-warn">{g}</span>
+                    <span className="text-[13px] text-muted">{outcome(g)}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-[13px] text-text-2">
+                <b>What to learn next:</b> {match.gaps.slice(0, 5).join(", ")}
+                {match.gaps.length > 5 ? ` and ${match.gaps.length - 5} more` : ""}. Study the
+                basics of each, build one small project that uses them, then practise again with the
+                same job description to see your answers improve.
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-text-2">
+              Your resume already shows every skill we found in this job description.
+            </p>
+          )}
+          {match.matched.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-bold tracking-[0.06em] text-muted uppercase">
+                Already on your resume
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {match.matched.map((m) => (
+                  <span key={m} className="chip chip-ok">
+                    <Icon name="check" size={12} strokeWidth={2.5} />
+                    {m}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </section>
   );
 }

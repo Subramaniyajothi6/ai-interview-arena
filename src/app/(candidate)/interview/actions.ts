@@ -1,13 +1,24 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getAi } from "@/lib/ai/client";
+import { buildReport } from "@/lib/ai/report";
+import { aiCompareJob, aiParseResume, aiPlanQuestions } from "@/lib/ai/tasks";
 import { requireUser } from "@/lib/auth";
+import {
+  JOB_DESCRIPTION_FILE_MAX_BYTES,
+  JOB_DESCRIPTION_MAX_CHARS,
+  JOB_DESCRIPTION_MIN_CHARS,
+} from "@/lib/constants";
+import { compareJobToResume, readJobMatch, type JobMatch } from "@/lib/interview/job-match";
 import { planQuestionsFromBank } from "@/lib/interview/questions";
-import { analyzeResumeText, type ParsedResume } from "@/lib/resume/analyze";
+import { analyzeResumeText, findSkills, type ParsedResume } from "@/lib/resume/analyze";
 import { extractResumeText, ResumeError, validateResume } from "@/lib/resume/extract";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fieldErrors, type FieldErrors } from "@/lib/validation/auth";
 import { interviewSetupSchema } from "@/lib/validation/interview";
+import { experienceLabel } from "@/lib/format";
 
 export type SetupFormState = { error?: string; fieldErrors?: FieldErrors };
 
@@ -53,7 +64,7 @@ async function ownSetupInterview(interviewId: string) {
     .maybeSingle();
   if (!interview) throw new ResumeError("Interview not found.");
   if (interview.status !== "setup") {
-    throw new ResumeError("This interview has already started, so its resume can't be changed.");
+    throw new ResumeError("This interview has already started, so its setup can't be changed.");
   }
   return current;
 }
@@ -103,7 +114,11 @@ export async function processResume(input: {
     const text = await extractResumeText(bytes, fileType);
 
     const { data: skills } = await supabase.from("skills").select("name, category");
-    const parsed = analyzeResumeText(text, skills ?? []);
+    // AI reads the resume when a provider is configured; keyword analysis otherwise.
+    const ai = await getAi();
+    let parsed: ParsedResume | null = null;
+    if (ai) parsed = await aiParseResume(ai, text).catch(() => null);
+    parsed ??= analyzeResumeText(text, skills ?? []);
 
     const { data: resume, error: insertError } = await supabase
       .from("resumes")
@@ -126,7 +141,12 @@ export async function processResume(input: {
       .update({ raw_text: text, parsed, status: "analyzed" })
       .eq("id", resume.id);
     await admin.from("interviews").update({ resume_id: resume.id }).eq("id", input.interviewId);
-    await addResumeSkills(user.id, [...parsed.skills, ...parsed.technologies]);
+    // Profile skills use the shared skills list's spelling.
+    const known = findSkills([...parsed.skills, ...parsed.technologies].join(", "), skills ?? []);
+    await addResumeSkills(
+      user.id,
+      known.map((s) => s.name),
+    );
 
     return { ok: true, resumeId: resume.id, fileName: file.name, parsed };
   } catch (e) {
@@ -182,6 +202,119 @@ async function addResumeSkills(userId: string, names: string[]) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Step 3 (optional): the job description the candidate is practising for.
+// ---------------------------------------------------------------------------
+
+export type JobDescriptionResult =
+  { ok: true; text: string; match: JobMatch } | { ok: false; error: string };
+
+// Saves the job description and compares it with the interview's resume.
+export async function saveJobDescription(input: {
+  interviewId: string;
+  text: string;
+}): Promise<JobDescriptionResult> {
+  try {
+    const { user, supabase } = await ownSetupInterview(input.interviewId);
+    const text = String(input.text ?? "")
+      .replaceAll("\r", "")
+      .trim();
+    if (text.length < JOB_DESCRIPTION_MIN_CHARS)
+      return { ok: false, error: "Paste the job description first (at least a few sentences)." };
+    if (text.length > JOB_DESCRIPTION_MAX_CHARS)
+      return {
+        ok: false,
+        error: `The job description is too long. Keep it under ${JOB_DESCRIPTION_MAX_CHARS.toLocaleString("en-IN")} characters.`,
+      };
+
+    const { data: iv } = await supabase
+      .from("interviews")
+      .select("resume_id, resumes(parsed)")
+      .eq("id", input.interviewId)
+      .eq("user_id", user.id)
+      .single();
+    if (!iv?.resume_id) return { ok: false, error: "Upload your resume first." };
+    const resume = (iv.resumes?.parsed ?? null) as ParsedResume | null;
+    const ai = await getAi();
+    let match: JobMatch | null = null;
+    if (ai) match = await aiCompareJob(ai, text, resume).catch(() => null);
+    if (!match) {
+      const { data: skills } = await supabase.from("skills").select("name, category");
+      match = compareJobToResume(text, skills ?? [], resume);
+    }
+
+    const { error } = await createAdminClient()
+      .from("interviews")
+      .update({ job_description: text, job_match: match })
+      .eq("id", input.interviewId)
+      .eq("status", "setup");
+    if (error)
+      return { ok: false, error: "We couldn't save the job description. Please try again." };
+    return { ok: true, text, match };
+  } catch (e) {
+    return { ok: false, error: e instanceof ResumeError ? e.message : "Please try again." };
+  }
+}
+
+export type JobFileResult = { ok: true; text: string } | { ok: false; error: string };
+
+// Reads the text of an uploaded job-description document (PDF, DOC or DOCX).
+// The file itself is not stored; only the text the candidate then saves.
+export async function readJobDescriptionFile(formData: FormData): Promise<JobFileResult> {
+  try {
+    await ownSetupInterview(String(formData.get("interviewId") ?? ""));
+    const file = formData.get("file");
+    if (!(file instanceof File)) return { ok: false, error: "Choose a file to upload." };
+    if (file.size > JOB_DESCRIPTION_FILE_MAX_BYTES)
+      return { ok: false, error: "The file is larger than 2 MB." };
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const { fileType } = validateResume(file, bytes);
+    const text = await extractResumeText(bytes, fileType);
+    return { ok: true, text: text.slice(0, JOB_DESCRIPTION_MAX_CHARS) };
+  } catch (e) {
+    if (e instanceof ResumeError) return { ok: false, error: e.message };
+    return { ok: false, error: "We couldn't read this file. Please paste the text instead." };
+  }
+}
+
+// Practise without a job description (or remove one added earlier).
+export async function clearJobDescription(interviewId: string): Promise<{ error?: string }> {
+  try {
+    await ownSetupInterview(interviewId);
+    await createAdminClient()
+      .from("interviews")
+      .update({ job_description: null, job_match: null })
+      .eq("id", interviewId)
+      .eq("status", "setup");
+    return {};
+  } catch (e) {
+    return { error: e instanceof ResumeError ? e.message : "Please try again." };
+  }
+}
+
+// Builds the report again (after an AI hiccup, or to refresh the plan).
+export async function generateReport(interviewId: string): Promise<{ error?: string }> {
+  const { user, supabase } = await requireUser();
+  const { data: iv } = await supabase
+    .from("interviews")
+    .select("id, status")
+    .eq("id", interviewId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!iv) return { error: "Interview not found." };
+  if (iv.status !== "completed" && iv.status !== "abandoned")
+    return { error: "Finish the interview first." };
+  const ai = await getAi();
+  if (!ai) return { error: "AI evaluation is not enabled yet." };
+  const ok = await buildReport(ai, interviewId).catch(() => false);
+  revalidatePath(`/reports/${interviewId}`);
+  revalidatePath("/plan");
+  revalidatePath("/dashboard");
+  return ok
+    ? {}
+    : { error: "We couldn't prepare the report right now. Please try again in a minute." };
+}
+
 export type StartState = { error?: string };
 
 // Step 3 → 4: choose the questions and open the interview room.
@@ -190,7 +323,7 @@ export async function startInterview(interviewId: string): Promise<StartState> {
   const { data: interview } = await supabase
     .from("interviews")
     .select(
-      "id, status, job_role, interview_type, difficulty, question_count, resume_id, resumes(parsed)",
+      "id, status, job_role, experience_level, interview_type, difficulty, question_count, resume_id, job_description, job_match, resumes(parsed)",
     )
     .eq("id", interviewId)
     .eq("user_id", user.id)
@@ -209,13 +342,32 @@ export async function startInterview(interviewId: string): Promise<StartState> {
     .select("id");
   if (!claimed?.length) redirect(`/interview/${interviewId}`);
 
-  const planned = await planQuestionsFromBank({
-    jobRole: interview.job_role,
-    interviewType: interview.interview_type,
-    difficulty: interview.difficulty,
-    count: interview.question_count,
-    resume: (interview.resumes?.parsed ?? null) as ParsedResume | null,
-  });
+  const resume = (interview.resumes?.parsed ?? null) as ParsedResume | null;
+  const gaps = readJobMatch(interview.job_match)?.gaps ?? [];
+  // AI writes the questions when configured; the question bank is the fallback.
+  const ai = await getAi();
+  let planned = ai
+    ? await aiPlanQuestions(ai, {
+        jobRole: interview.job_role,
+        experience: experienceLabel(interview.experience_level),
+        interviewType: interview.interview_type,
+        difficulty: interview.difficulty,
+        count: interview.question_count,
+        resume,
+        gaps,
+        jobDescription: interview.job_description,
+      }).catch(() => [])
+    : [];
+  if (planned.length < Math.min(3, interview.question_count)) {
+    planned = await planQuestionsFromBank({
+      jobRole: interview.job_role,
+      interviewType: interview.interview_type,
+      difficulty: interview.difficulty,
+      count: interview.question_count,
+      resume,
+      gaps,
+    });
+  }
   if (planned.length === 0) {
     await admin.from("interviews").update({ status: "setup" }).eq("id", interviewId);
     return {
