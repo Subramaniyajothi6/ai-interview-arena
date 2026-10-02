@@ -229,6 +229,17 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
               />
             </section>
           </div>
+          {report.summary && (
+            <section className="card flex flex-col gap-2 print:break-inside-avoid">
+              <h3 className="flex items-center gap-2 text-base">
+                <span className="text-primary-600">
+                  <Icon name="sparkle" size={18} />
+                </span>
+                Summary
+              </h3>
+              <p className="text-sm leading-relaxed text-text-2">{report.summary}</p>
+            </section>
+          )}
           <div className="grid gap-4 md:grid-cols-2">
             <ListCard
               title="Strengths"
@@ -465,8 +476,9 @@ function JobMatchCard({
       return `Answered · score ${Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)}`;
     return `Answered${asked.length > 1 ? ` ${answered.length} of ${asked.length}` : ""} · evaluation pending`;
   };
+  // Long gap lists may split across printed pages; each row stays whole.
   return (
-    <section className="card flex flex-col gap-4 print:break-inside-avoid">
+    <section className="card flex flex-col gap-4">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 className="flex items-center gap-2 text-base">
           <span className="text-primary-600">
@@ -497,7 +509,7 @@ function JobMatchCard({
                 {match.gaps.map((g) => (
                   <li
                     key={g}
-                    className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5 text-sm"
+                    className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-2.5 text-sm break-inside-avoid"
                   >
                     <span className="chip chip-warn">{g}</span>
                     <span className="text-[13px] text-muted">{outcome(g)}</span>

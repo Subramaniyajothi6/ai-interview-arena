@@ -21,7 +21,7 @@ const PRIORITY_CHIP = { high: "chip-bad", medium: "chip-warn", low: "chip-n" } a
 
 // Shows the plan built from the candidate's latest evaluated interview.
 export default async function PlanPage() {
-  const { user, supabase } = await requireUser("/plan");
+  const { user, profile, supabase } = await requireUser("/plan");
   const { data: plan } = await supabase
     .from("improvement_plans")
     .select(
@@ -54,7 +54,31 @@ export default async function PlanPage() {
 
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-5">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      {/* Printed instead of the page title: who the plan is for. */}
+      <header className="hidden border-b-2 border-ink pb-4 print:block">
+        <p className="text-xs font-semibold tracking-wide text-muted uppercase">
+          AI Interview Arena · Improvement plan
+        </p>
+        <h1 className="mt-1 text-2xl">{profile.full_name || "Candidate"}</h1>
+        <dl className="mt-3 grid grid-cols-2 gap-x-8 gap-y-1 text-[13px]">
+          {(
+            [
+              ["Goal", iv?.job_role ?? "—"],
+              ["Experience", iv ? experienceLabel(iv.experience_level) : "—"],
+              ["Interview", iv ? `${typeLabel(iv.interview_type)} interview` : "—"],
+              ["Plan created", formatDate(plan.created_at)],
+              ["Current score", score === null ? "—" : `${score} / 100`],
+              ["Target score", target === null ? "—" : `${target} / 100`],
+            ] as [string, string][]
+          ).map(([label, value]) => (
+            <div key={label} className="flex gap-2">
+              <dt className="w-28 shrink-0 text-muted">{label}</dt>
+              <dd className="font-semibold">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </header>
+      <div className="flex flex-wrap items-end justify-between gap-4 print:hidden">
         <div className="flex flex-col gap-1.5">
           <span className="eyebrow">AI career feedback</span>
           <h2 className="text-[28px]">Your personalized improvement plan</h2>

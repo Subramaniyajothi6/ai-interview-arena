@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+/* Printing always uses the wide (md) layout. A4 is about 720px wide with
+   margins and 790px without, either side of the 768px md breakpoint, so
+   otherwise the browser's margin setting decided which layout printed. */
+@custom-variant md {
+  @media print {
+    @slot;
+  }
+  @media (width >= 48rem) {
+    @slot;
+  }
+}
+@custom-variant max-md {
+  @media screen and (width < 48rem) {
+    @slot;
+  }
+}
+
+/* Our own page margins, so printed text never touches the paper edge. */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
 /* Design tokens from the "Foundations" board of the UI design. */
 @theme {
   --color-ink: #17152a;

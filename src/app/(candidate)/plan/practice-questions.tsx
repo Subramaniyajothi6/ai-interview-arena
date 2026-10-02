@@ -42,7 +42,7 @@ export function PracticeQuestions({
 
   return (
     <>
-      <span className="-mt-[36px] self-end text-xs text-muted" aria-live="polite">
+      <span className="-mt-[36px] self-end text-xs text-muted print:hidden" aria-live="polite">
         {done.length} of {questions.length} done
       </span>
       <ul className="mt-1">
@@ -58,11 +58,11 @@ export function PracticeQuestions({
                 type="checkbox"
                 checked={checked}
                 onChange={() => toggle(i)}
-                className="size-4 shrink-0 accent-primary-600"
+                className="size-4 shrink-0 accent-primary-600 print:hidden"
               />
               <label
                 htmlFor={`pq${i}`}
-                className={`grow cursor-pointer text-sm ${checked ? "text-muted line-through" : ""}`}
+                className={`grow cursor-pointer text-sm ${checked ? "text-muted line-through print:text-text print:no-underline" : ""}`}
               >
                 {q.question}
               </label>
@@ -73,7 +73,7 @@ export function PracticeQuestions({
               )}
               <Link
                 href={`/interview/new${q.difficulty ? `?difficulty=${q.difficulty}` : ""}`}
-                className="shrink-0 text-[13px] font-semibold"
+                className="shrink-0 text-[13px] font-semibold print:hidden"
               >
                 Practice
               </Link>

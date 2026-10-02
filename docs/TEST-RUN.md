@@ -28,7 +28,7 @@ and how each problem is fixed. Automated suites are described in [TESTING.md](./
 | F. Job description | 11 checks | 0 | 0 | 0 | 11 |
 | G. AI | 14 checks | 14 local | 0 | 0 | 14 production |
 
-Open issues: **0** · Fixed, awaiting re-test: **0** · Closed: **5**
+Open issues: **0** · Fixed, awaiting re-test: **1** (#6) · Closed: **5**
 
 ---
 
@@ -294,13 +294,13 @@ Automated: `npm run test:ai` — 18/18 passed locally. Manual checks below: firs
 
 | # | Step | Expected | Local | Production | Issue |
 |---|---|---|---|---|---|
-| 1 | Admin → Settings → AI service | "Open-source AI model: Connected — Groq · openai/gpt-oss-120b"; Provider = Open-source AI model | ✅ | ⬜ | |
-| 2 | New interview → upload your real resume | Analysis fills in within ~10 s and says "Read by AI"; entries look right | ✅ | ⬜ | |
-| 3 | Paste a real job post → Compare with resume | Sensible gaps and matched skills (not only exact keywords) | ✅ | ⬜ | |
-| 4 | Start interview | Questions fit your resume, the role and the gaps; one about a resume project | ✅ | ⬜ | |
-| 5 | Give one good, detailed answer | Next question within a few seconds | ✅ | ⬜ | |
-| 6 | Give one short, vague answer | A follow-up (e.g. Q2a) appears asking for the missing detail | ✅ | ⬜ | |
-| 7 | Answer by voice once | Transcript is scored like typed text | ✅ | ⬜ | |
+| 1 | Admin → Settings → AI service | "Open-source AI model: Connected — Groq · openai/gpt-oss-120b"; Provider = Open-source AI model | ✅ | ✅ | |
+| 2 | New interview → upload your real resume | Analysis fills in within ~10 s and says "Read by AI"; entries look right | ✅ | ✅ | |
+| 3 | Paste a real job post → Compare with resume | Sensible gaps and matched skills (not only exact keywords) | ✅ | ✅ | |
+| 4 | Start interview | Questions fit your resume, the role and the gaps; one about a resume project | ✅ | ✅ | |
+| 5 | Give one good, detailed answer | Next question within a few seconds | ✅ | ✅ | |
+| 6 | Give one short, vague answer | A follow-up (e.g. Q2a) appears asking for the missing detail | ✅ | ✅ | |
+| 7 | Answer by voice once | Transcript is scored like typed text | ✅ | ✅ | |
 | 8 | Finish all questions (or End interview) | Report within ~10 s: overall score, 7 criteria, strengths, improvements, feedback per question | ✅ | ⬜ | |
 | 9 | Report → scores make sense | Good answer clearly higher than the vague one; feedback refers to what you said | ✅ | ⬜ | |
 | 10 | Improvement Plan | 5 weeks, topics with priorities, practice questions, 2 projects, tips — aimed at your gaps | ✅ | ⬜ | |
@@ -505,6 +505,36 @@ Regression: `npm run test:forms` 74/74, unit tests 49/49.
 
 **Re-test:** C5 — save with a short expected answer → error, everything kept → fix it → saved and
 listed → edit → delete.
+
+---
+
+### #6 — Downloaded report looks different on the live site and locally
+
+| | |
+|---|---|
+| Found at | Part G step 8 (production check), report Download |
+| Severity | Minor — same content, different layout and margins |
+| Status | **Fixed – awaiting re-test** |
+
+**Expected:** the same printout everywhere.
+
+**Actual:** live site (Brave, margins "None"): score and criteria side by side, but text touching
+the page edge ("ob match" cut off). Local (Chrome, default margins): everything stacked in the phone
+layout, 6 pages instead of 5.
+
+**Root cause:** not local vs production — both sites served identical pages (checked with the same
+report on both). A4 is about 720 px wide with margins and 790 px without, either side of the 768 px
+point where the layout switches from phone to desktop, so the browser's margin setting decided the
+layout. There were also no page margins of our own.
+
+**Fix:** `src/app/globals.css` — printing always uses the desktop (md) layout, and `@page` sets A4
+with 12 mm margins. The long Job match card may now split across pages (each gap row stays whole)
+instead of leaving a blank gap.
+
+**Verified:** headless Chrome print layout identical at 718 px and 794 px; PDF with the app's margins;
+end-to-end 50/50.
+
+**Re-test:** Download in Chrome and Brave with default margins → same layout, text clear of the edges.
 
 ---
 
