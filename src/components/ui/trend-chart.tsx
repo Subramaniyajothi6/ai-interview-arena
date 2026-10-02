@@ -2,11 +2,12 @@
 export function TrendChart({
   points,
   height = 180,
+  width = 640,
 }: {
   points: { label: string; score: number }[];
   height?: number;
+  width?: number; // drawing width; the SVG always scales to its container
 }) {
-  const width = 640;
   const pad = { top: 16, right: 20, bottom: 28, left: 32 };
   const innerW = width - pad.left - pad.right;
   const innerH = height - pad.top - pad.bottom;

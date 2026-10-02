@@ -29,10 +29,14 @@ export default async function RoomPage({ params }: PageProps<"/interview/[id]/ro
       .eq("interview_id", id)
       .order("position")
       .order("follow_up_index"),
-    supabase.from("candidate_answers").select("question_id, skipped").eq("interview_id", id),
+    supabase
+      .from("candidate_answers")
+      .select("question_id, skipped, answer_text")
+      .eq("interview_id", id),
     supabase.from("app_settings").select("allow_voice_answers").eq("id", 1).maybeSingle(),
   ]);
 
+  const answerOf = new Map((answers ?? []).map((a) => [a.question_id, a]));
   const answered = new Map((answers ?? []).map((a) => [a.question_id, a.skipped]));
   // The current question is the first one without an answer.
   const currentIndex = (questions ?? []).findIndex((q) => !answered.has(q.id));
@@ -55,6 +59,14 @@ export default async function RoomPage({ params }: PageProps<"/interview/[id]/ro
   });
   if (list.length > 0 && currentIndex === -1) redirect(`/interview/${id}/complete`);
 
+  // The answer just given, shown as a strip above the next question.
+  const prev = currentIndex > 0 ? list[currentIndex - 1] : null;
+  const prevAnswer = prev ? answerOf.get(prev.id) : undefined;
+  const previous =
+    prev && prevAnswer && !prevAnswer.skipped && prevAnswer.answer_text
+      ? { label: prev.label, text: prevAnswer.answer_text.slice(0, 160) }
+      : null;
+
   return (
     <InterviewRoom
       interviewId={id}
@@ -65,6 +77,7 @@ export default async function RoomPage({ params }: PageProps<"/interview/[id]/ro
         difficulty: difficultyLabel(iv.difficulty),
       }}
       questions={list}
+      previous={previous}
       allowVoice={settings?.allow_voice_answers ?? true}
     />
   );

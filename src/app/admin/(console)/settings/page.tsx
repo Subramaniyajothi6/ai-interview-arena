@@ -19,7 +19,7 @@ export default async function SettingsPage() {
   const ownerId = admins?.[0]?.id; // the first admin account is shown as the owner
 
   const adminCard = (
-    <section className="card flex flex-col gap-3 !p-6">
+    <section className="card flex min-w-0 flex-col gap-3 !p-6">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base">Admin accounts</h2>
       </div>
@@ -36,7 +36,8 @@ export default async function SettingsPage() {
         <tbody>
           {(admins ?? []).map((a) => (
             <tr key={a.id}>
-              <td>
+              {/* Takes the spare width; long emails are shortened with "…". */}
+              <td className="w-full max-w-0">
                 <PersonCell name={a.full_name} email={a.email} />
               </td>
               <td>{a.id === ownerId ? "Owner" : "Admin"}</td>

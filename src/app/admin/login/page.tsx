@@ -4,6 +4,7 @@ import { AdminLoginForm } from "./admin-login-form";
 export const metadata: Metadata = { title: "Admin sign in" };
 
 const NOTICES: Record<string, string> = {
+  session_expired: "Your session has expired. Please log in again to continue.",
   not_admin: "This account does not have administrator access.",
 };
 

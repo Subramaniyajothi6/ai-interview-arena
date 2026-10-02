@@ -2,15 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { param, ROLE_VALUES, searchTerm } from "@/lib/admin-query";
 import { createClient } from "@/lib/supabase/server";
 import type { JobRole } from "@/lib/constants";
+import { csvCell } from "@/lib/csv";
 import { experienceLabel } from "@/lib/format";
-
-// Values starting with = + - @ are treated as formulas by spreadsheet apps;
-// prefix them so exported data can't run as a formula.
-function csvCell(value: unknown) {
-  let s = value == null ? "" : String(value);
-  if (/^[=+\-@]/.test(s)) s = `'${s}`;
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
 
 // CSV export of candidates (admins only), honouring the list's filters.
 export async function GET(request: NextRequest) {

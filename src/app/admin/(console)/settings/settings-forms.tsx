@@ -44,7 +44,7 @@ function Switch({
 // The three settings cards share one form (via the `form` attribute) so the
 // admin accounts card can sit in the same grid with its own forms.
 export function SettingsCards({
-  settings,
+  settings: saved,
   adminCard,
 }: {
   settings: Settings;
@@ -52,9 +52,24 @@ export function SettingsCards({
 }) {
   const [state, action] = useActionState<AdminFormState, FormData>(saveSettings, {});
   const err = state.fieldErrors ?? {};
+  // After a failed save, keep what the admin entered instead of the saved values.
+  const sent = state.values;
+  const settings = sent
+    ? {
+        questionsPerInterview: sent.questionsPerInterview ?? "",
+        maxFollowUps: sent.maxFollowUps ?? "",
+        maxResumeMb: sent.maxResumeMb ?? "",
+        allowFollowUps: sent.allowFollowUps === "on",
+        allowVoice: sent.allowVoice === "on",
+        showQuestionScores: sent.showQuestionScores === "on",
+        aiProvider: sent.aiProvider ?? saved.aiProvider,
+      }
+    : saved;
 
   return (
-    <div className="flex flex-col gap-5">
+    // A new key after a failed save remounts the fields with what was entered
+    // (React 19 resets forms after an action, and selects reset to their first defaults).
+    <div key={sent ? JSON.stringify(sent) : "saved"} className="flex flex-col gap-5">
       <form id={FORM_ID} action={action} noValidate />
       {state.error && <FormAlert tone="error">{state.error}</FormAlert>}
       {state.success && <FormAlert tone="success">{state.success}</FormAlert>}

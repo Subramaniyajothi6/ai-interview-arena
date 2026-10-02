@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
-import { initials, requireUser } from "@/lib/auth";
+import { Avatar } from "@/components/ui/avatar";
+import { requireUser } from "@/lib/auth";
 import { formatDate } from "@/lib/format";
+import { EditModeProvider } from "./edit-mode";
+import { PhotoButton } from "./photo-button";
 import { ProfileForm } from "./profile-form";
 import { SkillsEditor } from "./skills-editor";
 
@@ -30,36 +33,33 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-5 lg:flex-row">
-      <section className="card flex min-w-0 grow flex-col gap-6 !p-7">
-        <div className="flex items-center gap-[18px]">
-          <span
-            className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary-600 text-[21px] font-bold text-white"
-            aria-hidden="true"
-          >
-            {initials(profile.full_name)}
-          </span>
-          <div>
-            <h2 className="text-xl">{profile.full_name || "Your profile"}</h2>
-            <p className="mt-0.5 text-[13px] text-muted">
-              Member since {memberSince.format(new Date(profile.created_at))}
-            </p>
+      <EditModeProvider>
+        <section className="card flex min-w-0 grow flex-col gap-6 !p-7">
+          <div className="flex flex-wrap items-center gap-[18px]">
+            <Avatar name={profile.full_name} url={profile.avatar_url} size={64} />
+            <div className="grow">
+              <h2 className="text-xl">{profile.full_name || "Your profile"}</h2>
+              <p className="mt-0.5 text-[13px] text-muted">
+                Member since {memberSince.format(new Date(profile.created_at))}
+              </p>
+            </div>
+            <PhotoButton userId={user.id} />
           </div>
-        </div>
 
-        <ProfileForm
-          values={{
-            fullName: profile.full_name,
-            email: profile.email,
-            phone: profile.phone ?? "",
-            education: profile.education ?? "",
-            experienceLevel: profile.experience_level ?? "",
-            experienceSummary: profile.experience_summary ?? "",
-            preferredRole: profile.preferred_role ?? "",
-          }}
-        />
-        <hr className="border-border" />
-        <SkillsEditor skills={skills} />
-      </section>
+          <ProfileForm
+            values={{
+              fullName: profile.full_name,
+              email: profile.email,
+              phone: profile.phone ?? "",
+              education: profile.education ?? "",
+              experienceSummary: profile.experience_summary ?? "",
+              preferredRole: profile.preferred_role ?? "",
+            }}
+          >
+            <SkillsEditor skills={skills} />
+          </ProfileForm>
+        </section>
+      </EditModeProvider>
 
       <aside className="flex shrink-0 flex-col gap-4 lg:w-80">
         <section className="card flex flex-col gap-3.5">
@@ -86,20 +86,7 @@ export default async function ProfilePage() {
         </section>
 
         <section className="card flex gap-3 !border-primary-200 !bg-primary-50 text-primary-900">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            className="shrink-0"
-          >
-            <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />
-          </svg>
+          <Icon name="shield" />
           <p className="text-[13px] leading-normal">
             Your profile, resume and interviews are visible only to you and platform admins.
           </p>
@@ -108,6 +95,7 @@ export default async function ProfilePage() {
         <section className="card flex flex-col gap-3">
           <h3 className="text-base">Account</h3>
           <Link href="/reset-password" className="btn btn-sec w-full">
+            <Icon name="lock" size={16} />
             Change password
           </Link>
         </section>

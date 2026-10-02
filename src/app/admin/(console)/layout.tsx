@@ -37,7 +37,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminPageTitle />
           <div className="flex items-center gap-3">
             <AdminHeaderAction />
-            <UserBadge name={profile.full_name} subtitle="Administrator" dark />
+            <UserBadge
+              name={profile.full_name}
+              subtitle="Administrator"
+              avatarUrl={profile.avatar_url}
+              dark
+            />
             <form action={adminLogout} className="lg:hidden">
               <button type="submit" className="btn btn-ghost w-11 px-0" aria-label="Log out">
                 <Icon name="logout" />

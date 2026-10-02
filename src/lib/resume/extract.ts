@@ -58,7 +58,9 @@ export async function extractResumeText(bytes: Uint8Array, type: ResumeFileType)
       const doc = await new WordExtractor().extract(Buffer.from(bytes));
       text = doc.getBody();
     }
-  } catch {
+  } catch (error) {
+    // Keep the technical reason in the server log; show the user a plain message.
+    console.error("[resume] text extraction failed", type, error);
     throw new ResumeError(
       "We couldn't read this document. It may be damaged or password-protected.",
     );

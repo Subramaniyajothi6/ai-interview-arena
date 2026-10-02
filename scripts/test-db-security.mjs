@@ -160,6 +160,28 @@ try {
   const { error: upBig } = await a.client.storage.from("resumes").upload(`${a.id}/big.pdf`, big);
   check("Bucket rejects files over 5 MB", !!upBig, upBig?.message);
 
+  // Profile photos
+  const png = new Blob([new Uint8Array([137, 80, 78, 71])], { type: "image/png" });
+  const { error: avOwn } = await a.client.storage
+    .from("avatars")
+    .upload(`${a.id}/avatar-1.png`, png);
+  check("Candidate can upload a photo to own avatars folder", !avOwn, avOwn?.message);
+  const { error: avOther } = await a.client.storage
+    .from("avatars")
+    .upload(`${b.id}/avatar-1.png`, png);
+  check("Candidate cannot upload a photo into another user's folder", !!avOther, avOther?.message);
+  const { error: avType } = await a.client.storage
+    .from("avatars")
+    .upload(`${a.id}/avatar-2.pdf`, pdf);
+  check("Avatars bucket rejects non-image files", !!avType, avType?.message);
+  const { error: avDel } = await b.client.storage.from("avatars").remove([`${a.id}/avatar-1.png`]);
+  const { data: stillThere } = await admin.storage.from("avatars").list(a.id);
+  check(
+    "Other candidate cannot delete someone's photo",
+    !avDel && stillThere?.some((f) => f.name === "avatar-1.png"),
+  );
+  await admin.storage.from("avatars").remove([`${a.id}/avatar-1.png`]);
+
   // Admin
   await admin.from("profiles").update({ role: "admin" }).eq("id", b.id);
   const { data: bSeesA } = await b.client.from("profiles").select("id").eq("id", a.id);

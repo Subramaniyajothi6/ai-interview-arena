@@ -160,6 +160,15 @@
     border-color: var(--color-primary-600);
     box-shadow: 0 0 0 3px var(--color-primary-100);
   }
+  /* Read-only fields (e.g. the profile before "Edit profile") stay readable. */
+  .input:disabled {
+    background: var(--color-bg);
+    border-color: var(--color-border-soft);
+    color: var(--color-text);
+    -webkit-text-fill-color: var(--color-text);
+    opacity: 1;
+    cursor: default;
+  }
   .input[aria-invalid="true"] {
     border-color: var(--color-danger);
   }
@@ -316,6 +325,9 @@
   }
 
   .data-table {
+    /* Contains absolutely positioned .sr-only labels (e.g. "Actions" headers)
+       so they can't widen the page on small screens. */
+    position: relative;
     border-collapse: collapse;
     width: 100%;
     font-size: 13px;
@@ -336,5 +348,24 @@
   }
   .data-table tr:last-child td {
     border-bottom: 0;
+  }
+}
+
+/* Voice answer level bars (interview room). */
+@keyframes wave {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+.wave-bar {
+  animation: wave 0.9s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave-bar {
+    animation: none;
   }
 }

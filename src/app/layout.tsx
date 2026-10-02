@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
+import { ConnectionBanner } from "@/components/ui/connection-banner";
+import { ServiceWorker } from "@/components/ui/service-worker";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -39,7 +41,11 @@ export default function RootLayout({
       lang="en"
       className={`${spaceGrotesk.variable} ${plexSans.variable} ${plexMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        <ConnectionBanner />
+        <ServiceWorker />
+        {children}
+      </body>
     </html>
   );
 }

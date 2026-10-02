@@ -21,10 +21,24 @@ function Err({ msg }: { msg?: string }) {
   return msg ? <p className="mt-1.5 text-xs text-danger">{msg}</p> : null;
 }
 
-export function QuestionForm({ values }: { values: QuestionValues }) {
+export function QuestionForm({ values: saved }: { values: QuestionValues }) {
   const [state, action] = useActionState<AdminFormState, FormData>(saveQuestion, {});
   const [confirmDelete, setConfirmDelete] = useState(false);
   const err = state.fieldErrors ?? {};
+  // After a failed save, show what was typed rather than the original values.
+  const sent = state.values;
+  const values: QuestionValues = sent
+    ? {
+        id: saved.id,
+        question: sent.question ?? "",
+        jobRole: sent.jobRole ?? "",
+        skill: sent.skill ?? "",
+        difficulty: sent.difficulty ?? saved.difficulty,
+        interviewType: sent.interviewType ?? saved.interviewType,
+        expectedAnswer: sent.expectedAnswer ?? "",
+        isActive: sent.isActive === "on",
+      }
+    : saved;
 
   return (
     <section
@@ -54,7 +68,14 @@ export function QuestionForm({ values }: { values: QuestionValues }) {
       </div>
       {state.error && <FormAlert tone="error">{state.error}</FormAlert>}
 
-      <form action={action} noValidate className="flex flex-col gap-3.5">
+      {/* A new key after a failed save remounts the fields with what was typed:
+          React 19 resets forms after an action, and selects reset to their first defaults. */}
+      <form
+        key={sent ? JSON.stringify(sent) : "saved"}
+        action={action}
+        noValidate
+        className="flex flex-col gap-3.5"
+      >
         {values.id && <input type="hidden" name="id" value={values.id} />}
         <div>
           <label className="label" htmlFor="question">

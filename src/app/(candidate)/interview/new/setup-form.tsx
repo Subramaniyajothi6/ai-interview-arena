@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import { FormAlert, SubmitButton } from "@/components/ui/form";
-import { Icon } from "@/components/ui/icon";
+import { Icon, type IconName } from "@/components/ui/icon";
 import {
   DIFFICULTIES,
   EXPERIENCE_LEVELS,
@@ -15,6 +15,15 @@ import { createInterview, type SetupFormState } from "../actions";
 
 type Option = { value: string; label: string };
 
+// Icons on the interview-type options, as in the setup board.
+const TYPE_ICONS: Record<string, IconName> = {
+  technical: "code",
+  hr: "users",
+  behavioral: "message",
+  managerial: "flag",
+  mixed: "shuffle",
+};
+
 function OptionGroup({
   name,
   legend,
@@ -22,6 +31,7 @@ function OptionGroup({
   value,
   onChange,
   error,
+  icons,
 }: {
   name: string;
   legend: string;
@@ -29,13 +39,14 @@ function OptionGroup({
   value: string;
   onChange: (v: string) => void;
   error?: string;
+  icons?: Record<string, IconName>;
 }) {
   return (
     <fieldset>
       <legend className="label">{legend}</legend>
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5">
         {options.map((o) => (
-          <label key={o.value} className="opt justify-center text-center">
+          <label key={o.value} className="opt justify-center !px-2 text-center whitespace-nowrap">
             <input
               type="radio"
               name={name}
@@ -44,6 +55,7 @@ function OptionGroup({
               onChange={() => onChange(o.value)}
               className="sr-only"
             />
+            {icons?.[o.value] && <Icon name={icons[o.value]} size={16} />}
             {o.label}
           </label>
         ))}
@@ -111,6 +123,7 @@ export function SetupForm({
           name="interviewType"
           legend="Interview type"
           options={INTERVIEW_TYPES}
+          icons={TYPE_ICONS}
           value={v.interviewType}
           onChange={set("interviewType")}
           error={err.interviewType}

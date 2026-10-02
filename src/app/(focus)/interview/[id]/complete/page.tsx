@@ -4,14 +4,9 @@ import { notFound, redirect } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
 import { firstName, requireUser } from "@/lib/auth";
+import { formatDuration } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Interview complete" };
-
-function duration(start: string | null, end: string | null) {
-  if (!start || !end) return "—";
-  const s = Math.max(0, Math.round((new Date(end).getTime() - new Date(start).getTime()) / 1000));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-}
 
 export default async function CompletePage({ params }: PageProps<"/interview/[id]/complete">) {
   const { id } = await params;
@@ -67,7 +62,7 @@ export default async function CompletePage({ params }: PageProps<"/interview/[id
             {[
               [`${answered}/${total ?? 0}`, "Questions answered"],
               [String(skipped), "Skipped"],
-              [duration(iv.started_at, iv.ended_at), "Duration"],
+              [formatDuration(iv.started_at, iv.ended_at), "Duration"],
             ].map(([value, label]) => (
               <div key={label} className="rounded-xl border border-border-soft bg-[#FCFBFA] p-4">
                 <div className="font-display text-[26px] font-bold">{value}</div>

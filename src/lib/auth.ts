@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -33,16 +34,31 @@ export const getCurrentUser = cache(async () => {
   return { user, profile, supabase };
 });
 
+// True when the browser still has login cookies but the session is no longer
+// valid (ended on another device, account disabled, expired).
+async function hasStaleSession() {
+  const store = await cookies();
+  return store.getAll().some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
+}
+
+// Leftover cookies must be cleared before showing the login page, or the
+// proxy (which only checks the token) would send the user straight back.
+function signOutAndRedirect(params: Record<string, string>): never {
+  redirect(`/auth/signout?${new URLSearchParams(params)}`);
+}
+
 // For candidate pages and actions: redirects to login when signed out and
 // signs disabled accounts out.
 export async function requireUser(next?: string) {
   const current = await getCurrentUser();
   if (!current) {
+    if (await hasStaleSession()) {
+      signOutAndRedirect({ error: "session_expired", ...(next ? { next } : {}) });
+    }
     redirect(next ? `/login?next=${encodeURIComponent(next)}` : "/login");
   }
   if (current.profile.status === "disabled") {
-    await current.supabase.auth.signOut();
-    redirect("/login?error=account_disabled");
+    signOutAndRedirect({ error: "account_disabled" });
   }
   return current;
 }
@@ -50,7 +66,10 @@ export async function requireUser(next?: string) {
 // For admin pages and actions.
 export async function requireAdmin() {
   const current = await getCurrentUser();
-  if (!current) redirect("/admin/login");
+  if (!current) {
+    if (await hasStaleSession()) signOutAndRedirect({ admin: "1", error: "session_expired" });
+    redirect("/admin/login");
+  }
   if (current.profile.role !== "admin" || current.profile.status !== "active") {
     redirect("/admin/login?error=not_admin");
   }

@@ -147,6 +147,18 @@ const paths = {
       <path d="M12 10v5M12 18h.01" />
     </>
   ),
+  lock: (
+    <>
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </>
+  ),
+  shield: <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />,
+  x: <path d="M6 6l12 12M18 6L6 18" />,
+  code: <path d="M8 7l-5 5 5 5M16 7l5 5-5 5" />,
+  flag: <path d="M5 21V4M5 4h11l-2 4 2 4H5" />,
+  shuffle: <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />,
+  pencil: <path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4" />,
 } as const;
 
 export type IconName = keyof typeof paths;

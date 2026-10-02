@@ -4,14 +4,24 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
-import { DIFFICULTIES, INTERVIEW_TYPES, JOB_ROLES } from "@/lib/constants";
+import { JOB_ROLES } from "@/lib/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { questionSchema, settingsSchema } from "@/lib/validation/admin";
 import { fieldErrors, type FieldErrors } from "@/lib/validation/auth";
 
-export type AdminFormState = { error?: string; success?: string; fieldErrors?: FieldErrors };
+export type AdminFormState = {
+  error?: string;
+  success?: string;
+  fieldErrors?: FieldErrors;
+  // What was submitted, sent back on errors: React 19 clears a form after its
+  // action finishes, so the fields refill from these instead of going blank.
+  values?: Record<string, string>;
+};
 
-const values = <T extends { value: string }>(list: readonly T[]) =>
-  list.map((x) => x.value) as [T["value"], ...T["value"][]];
+const submitted = (formData: FormData) =>
+  Object.fromEntries(
+    [...formData.entries()].filter((e): e is [string, string] => typeof e[1] === "string"),
+  );
 
 // ---------------------------------------------------------------------------
 // Candidates
@@ -41,30 +51,14 @@ export async function setCandidateStatus(formData: FormData) {
 // Question bank
 // ---------------------------------------------------------------------------
 
-const questionSchema = z.object({
-  question: z.string().trim().min(5, "Enter the question.").max(1000, "At most 1000 characters."),
-  jobRole: z.enum(JOB_ROLES).or(z.literal("").transform(() => null)),
-  skill: z.string().trim().min(1, "Enter a skill.").max(60, "At most 60 characters."),
-  difficulty: z.enum(values(DIFFICULTIES), { error: "Choose a difficulty." }),
-  interviewType: z.enum(values(INTERVIEW_TYPES), { error: "Choose a type." }),
-  expectedAnswer: z
-    .string()
-    .trim()
-    .min(10, "Describe what a good answer covers.")
-    .max(3000, "At most 3000 characters."),
-  isActive: z
-    .literal("on")
-    .optional()
-    .transform((v) => v === "on"),
-});
-
 export async function saveQuestion(
   _prev: AdminFormState,
   formData: FormData,
 ): Promise<AdminFormState> {
   const { user, supabase } = await requireAdmin();
   const parsed = questionSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success)
+    return { fieldErrors: fieldErrors(parsed.error), values: submitted(formData) };
   const v = parsed.data;
   const row = {
     question: v.question,
@@ -82,7 +76,11 @@ export async function saveQuestion(
     typeof id === "string" && id
       ? await supabase.from("question_bank").update(row).eq("id", id)
       : await supabase.from("question_bank").insert({ ...row, created_by: user.id });
-  if (error) return { error: "We couldn't save the question. Please try again." };
+  if (error)
+    return {
+      error: "We couldn't save the question. Please try again.",
+      values: submitted(formData),
+    };
 
   revalidatePath("/admin/questions");
   redirect(`/admin/questions?saved=1`);
@@ -100,23 +98,14 @@ export async function deleteQuestion(formData: FormData) {
 // Settings
 // ---------------------------------------------------------------------------
 
-const settingsSchema = z.object({
-  questionsPerInterview: z.coerce.number().int().min(3, "At least 3.").max(15, "At most 15."),
-  maxFollowUps: z.coerce.number().int().min(0).max(3, "At most 3."),
-  maxResumeMb: z.coerce.number().int().min(1, "At least 1 MB.").max(5, "At most 5 MB."),
-  allowFollowUps: z.literal("on").optional(),
-  allowVoice: z.literal("on").optional(),
-  showQuestionScores: z.literal("on").optional(),
-  aiProvider: z.enum(["openai", "open_source"], { error: "Choose a provider." }),
-});
-
 export async function saveSettings(
   _prev: AdminFormState,
   formData: FormData,
 ): Promise<AdminFormState> {
   const { supabase } = await requireAdmin();
   const parsed = settingsSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return { fieldErrors: fieldErrors(parsed.error) };
+  if (!parsed.success)
+    return { fieldErrors: fieldErrors(parsed.error), values: submitted(formData) };
   const v = parsed.data;
   const { error } = await supabase
     .from("app_settings")
@@ -130,7 +119,11 @@ export async function saveSettings(
       ai_provider: v.aiProvider,
     })
     .eq("id", 1);
-  if (error) return { error: "We couldn't save the settings. Please try again." };
+  if (error)
+    return {
+      error: "We couldn't save the settings. Please try again.",
+      values: submitted(formData),
+    };
   revalidatePath("/", "layout");
   return { success: "Settings saved." };
 }

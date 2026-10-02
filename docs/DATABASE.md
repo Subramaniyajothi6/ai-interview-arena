@@ -11,6 +11,8 @@ AI Interview Arena uses **Supabase PostgreSQL** with row level security (RLS), S
 | `…05_lock_down_privileges.sql` | Least-privilege grants for the API roles |
 | `…06_question_source_resume.sql` | `resume` question source (questions built from the candidate's resume) |
 | `…07_more_questions.sql`, `…08_more_role_questions.sql` | 64 more questions — 129 in total, at least 8 per role for technical interviews |
+| `…09_ai_provider_setting.sql` | AI provider choice in the admin settings |
+| `…10_avatars.sql` | Public `avatars` bucket for profile photos (JPG/PNG/WebP, 2 MB); users write only in their own folder |
 
 ## Entity relationships
 
@@ -68,6 +70,7 @@ These match `src/lib/constants.ts`.
 - **Least privilege.** Signed-out visitors (`anon`) have no table access. Signed-in users get only the operations they need; for example they can update their own name and phone but not `role` or `status`, and they cannot read `interview_questions.expected_points`.
 - **Trusted writes.** Answers, AI evaluations, reports and improvement plans are written only by server code using the secret key, after it has checked who the caller is. Candidates cannot write or change scores.
 - **Resume storage.** The `resumes` bucket is private and only accepts PDF, DOC and DOCX up to 5 MB. Files are stored at `resumes/<user id>/…`; users can only upload, read or delete inside their own folder, and admins can read all.
+- **Profile photos.** The `avatars` bucket is public-read (photos appear in the app header) but only accepts JPG, PNG and WebP up to 2 MB, and each user can only write or delete inside `avatars/<user id>/`. The saved URL is checked on the server before it is stored in `profiles.avatar_url`.
 
 ### Verifying the rules
 

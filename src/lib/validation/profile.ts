@@ -15,10 +15,13 @@ export const profileSchema = z.object({
     "Enter a valid phone number.",
   ),
   education: optionalText(300, "At most 300 characters."),
+  // Not on the profile form (it is chosen at interview setup); kept optional
+  // so other callers can still set it.
   experienceLevel: z
     .enum(EXPERIENCE_LEVELS.map((e) => e.value) as [string, ...string[]])
-    .or(z.literal("").transform(() => null)),
-  experienceSummary: optionalText(1000, "At most 1000 characters."),
+    .or(z.literal("").transform(() => null))
+    .optional(),
+  experienceSummary: optionalText(300, "At most 300 characters."),
   preferredRole: z.enum(JOB_ROLES).or(z.literal("").transform(() => null)),
 });
 

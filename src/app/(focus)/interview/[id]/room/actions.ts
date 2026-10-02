@@ -98,11 +98,13 @@ export async function endInterview(interviewId: string): Promise<AnswerResult> {
   const { interview } = await loadInterview(interviewId);
   if (!interview) return { ok: false, error: "Interview not found." };
   if (interview.status === "in_progress") {
-    await createAdminClient()
+    const { error } = await createAdminClient()
       .from("interviews")
       .update({ status: "abandoned", ended_at: new Date().toISOString() })
       .eq("id", interviewId)
       .eq("status", "in_progress");
+    // Without this the complete page would bounce the user back to the room.
+    if (error) return { ok: false, error: "We couldn't end the interview. Please try again." };
   }
   return { ok: true, done: true };
 }

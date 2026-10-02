@@ -28,7 +28,8 @@ export async function getCandidateDashboard(supabase: Client) {
 
   const all = interviews ?? [];
   const done = reports ?? [];
-  const started = all.filter((i) => i.status !== "setup" && i.status !== "ready");
+  const finished = all.filter((i) => i.status === "completed" || i.status === "abandoned");
+  const completedCount = all.filter((i) => i.status === "completed").length;
   const scores = done.map((r) => r.overall_score);
 
   const latest = done.at(-1) ?? null;
@@ -67,12 +68,14 @@ export async function getCandidateDashboard(supabase: Client) {
   return {
     stats: {
       total: all.length,
-      completed: done.length,
+      completed: completedCount,
+      scored: done.length,
       average: avg(scores),
       best: scores.length ? Math.max(...scores) : null,
       technical: avg(done.map((r) => r.technical_knowledge)),
       communication: avg(done.map((r) => r.communication)),
-      completionRate: started.length ? Math.round((done.length / started.length) * 100) : null,
+      // Share of finished interviews that were completed rather than ended early.
+      completionRate: finished.length ? Math.round((completedCount / finished.length) * 100) : null,
       change: latest && previous ? latest.overall_score - previous.overall_score : null,
     },
     trend: done.slice(-6).map((r) => ({ date: r.created_at, score: r.overall_score })),

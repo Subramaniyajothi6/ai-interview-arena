@@ -1,12 +1,20 @@
 import Link from "next/link";
+import { logout } from "@/app/(auth)/actions";
 import { Icon } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
 import { ScoreRing } from "@/components/ui/score-ring";
+import { getCurrentUser } from "@/lib/auth";
+import { isSupabaseConfigured } from "@/lib/env";
 
 // Content is capped at the design's 1280px frame and centred on wider screens.
 const CONTAINER = "mx-auto w-full max-w-[1280px] px-4 sm:px-8 xl:px-[72px]";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  // Signed-in visitors get "Go to dashboard" / "Log out" instead of "Log in",
+  // so it's clear which account is active.
+  const current = isSupabaseConfigured() ? await getCurrentUser() : null;
+  const home = current?.profile.role === "admin" ? "/admin" : "/dashboard";
+
   return (
     // Desktop: exactly one screen tall, no scrolling. Small screens may scroll.
     <div className="flex min-h-dvh flex-col overflow-hidden bg-ink text-white lg:h-dvh">
@@ -16,15 +24,33 @@ export default function LandingPage() {
         <div className={`${CONTAINER} flex h-20 items-center justify-between`}>
           <Logo tone="light" />
           <nav aria-label="Main" className="flex items-center gap-4 text-sm sm:gap-8">
-            <Link
-              href="/login"
-              className="font-semibold text-white no-underline hover:text-primary-200"
-            >
-              Log in
-            </Link>
-            <Link href="/register" className="btn">
-              Get started
-            </Link>
+            {current ? (
+              <>
+                <form action={logout}>
+                  <button
+                    type="submit"
+                    className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-white hover:text-primary-200"
+                  >
+                    Log out
+                  </button>
+                </form>
+                <Link href={home} className="btn">
+                  Go to dashboard
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="font-semibold text-white no-underline hover:text-primary-200"
+                >
+                  Log in
+                </Link>
+                <Link href="/register" className="btn">
+                  Get started
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       </header>
@@ -58,15 +84,15 @@ export default function LandingPage() {
             answers. Clear feedback on every response.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link href="/register" className="btn btn-lg">
+            <Link href={current ? "/interview/new" : "/register"} className="btn btn-lg">
               Start a mock interview
               <Icon name="arrowRight" size={16} />
             </Link>
             <Link
-              href="/login"
+              href={current ? home : "/login"}
               className="btn btn-lg !border-[#3B3858] !bg-transparent !text-white hover:!bg-ink-2"
             >
-              Log in
+              {current ? "Go to dashboard" : "Log in"}
             </Link>
           </div>
         </section>

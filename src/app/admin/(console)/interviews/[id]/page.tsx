@@ -99,14 +99,14 @@ export default async function AdminInterviewDetailPage({
       </div>
 
       {/* Summary card */}
-      <section className="card flex flex-col gap-5 !px-6 !py-5 lg:flex-row lg:items-center">
+      <section className="card flex flex-col gap-5 !px-6 !py-5 xl:flex-row xl:items-center">
         <Link
           href={`/admin/candidates/${iv.user_id}`}
-          className="shrink-0 text-text no-underline lg:w-[190px] lg:border-r lg:border-border-soft lg:pr-5"
+          className="min-w-0 shrink-0 text-text no-underline xl:w-[190px] xl:border-r xl:border-border-soft xl:pr-5"
         >
           <PersonCell name={iv.profiles?.full_name ?? ""} email={iv.profiles?.email} />
         </Link>
-        <dl className="grid grow grid-cols-2 gap-4 sm:grid-cols-5">
+        <dl className="grid min-w-0 grow grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
           {[
             ["Job role", iv.job_role],
             ["Experience level", experienceLabel(iv.experience_level)],
@@ -129,7 +129,7 @@ export default async function AdminInterviewDetailPage({
             </dd>
           </div>
         </dl>
-        <div className="flex shrink-0 items-center gap-3 lg:border-l lg:border-border-soft lg:pl-5">
+        <div className="flex shrink-0 items-center gap-3 xl:border-l xl:border-border-soft xl:pl-5">
           <ScoreRing score={iv.overall_score} size={82} stroke={8} />
           <div>
             <div className="text-sm font-semibold">Overall score</div>
@@ -255,14 +255,19 @@ export default async function AdminInterviewDetailPage({
             <p className="text-[13px] text-primary-900">
               {report
                 ? "Overall score, strengths, improvement areas and the candidate's improvement plan."
-                : "The report is generated once AI evaluation is enabled."}
+                : iv.status === "completed" || iv.status === "abandoned"
+                  ? "Not generated yet — it is created once AI evaluation is enabled. The answers above are the full record for now."
+                  : "Not generated yet — it is created when the candidate finishes the interview and AI evaluation is enabled."}
             </p>
           </div>
         </div>
-        <Link href={`/admin/reports?id=${iv.id}`} className="btn">
-          View final report
-          <Icon name="arrowRight" size={16} />
-        </Link>
+        {/* Only link when there is a report; otherwise the Reports page has nothing more to show. */}
+        {report && (
+          <Link href={`/admin/reports?id=${iv.id}`} className="btn">
+            View final report
+            <Icon name="arrowRight" size={16} />
+          </Link>
+        )}
       </section>
     </div>
   );

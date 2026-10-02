@@ -5,11 +5,19 @@ import { useActionState } from "react";
 import { Field, FormAlert, SubmitButton } from "@/components/ui/form";
 import { login, type AuthFormState } from "../actions";
 
-export function LoginForm({ next, notice }: { next?: string; notice?: string }) {
+export function LoginForm({
+  next,
+  notice,
+  onForgot,
+}: {
+  next?: string;
+  notice?: string;
+  onForgot?: () => void;
+}) {
   const [state, action] = useActionState<AuthFormState, FormData>(login, {});
 
   return (
-    <form action={action} noValidate className="flex flex-col gap-4">
+    <form action={action} noValidate className="flex w-full flex-col gap-4 xl:w-[380px]">
       <div>
         <h1 className="text-[30px]">Welcome back</h1>
         <p className="mt-1.5 text-sm text-muted">Log in to continue your practice.</p>
@@ -41,8 +49,28 @@ export function LoginForm({ next, notice }: { next?: string; notice?: string }) 
         error={state.fieldErrors?.password}
         required
       />
-      <div className="flex justify-end text-[13px]">
-        <Link href="/forgot-password" className="font-semibold">
+      <div className="flex items-center justify-between text-[13px]">
+        <label className="flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            name="remember"
+            className="size-4 accent-primary-600"
+            defaultChecked={state.values?.remember === "on"}
+          />
+          Remember me
+        </label>
+        <Link
+          href="/forgot-password"
+          className="font-semibold"
+          onClick={(e) => {
+            // Wide screens open the reset card beside the form; smaller
+            // screens go to the reset page.
+            if (onForgot && window.matchMedia("(min-width: 1280px)").matches) {
+              e.preventDefault();
+              onForgot();
+            }
+          }}
+        >
           Forgot password?
         </Link>
       </div>

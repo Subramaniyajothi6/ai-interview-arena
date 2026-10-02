@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { FormAlert } from "@/components/ui/form";
 import { Icon } from "@/components/ui/icon";
+import { isNetworkError, withNetworkErrors } from "@/lib/network";
 import { startInterview } from "../../actions";
 
 export function StartPanel({ interviewId }: { interviewId: string }) {
@@ -35,8 +36,9 @@ export function StartPanel({ interviewId }: { interviewId: string }) {
           onClick={() =>
             startTransition(async () => {
               setError(null);
-              const result = await startInterview(interviewId);
-              if (result?.error) setError(result.error);
+              const result = await withNetworkErrors(() => startInterview(interviewId));
+              if (isNetworkError(result)) setError(result.networkError);
+              else if (result?.error) setError(result.error);
             })
           }
         >

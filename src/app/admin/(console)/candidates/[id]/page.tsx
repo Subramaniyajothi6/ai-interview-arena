@@ -38,7 +38,7 @@ export default async function CandidateDetailPage({ params }: PageProps<"/admin/
     supabase
       .from("interviews")
       .select(
-        "id, job_role, experience_level, interview_type, difficulty, status, overall_score, created_at",
+        "id, job_role, experience_level, interview_type, difficulty, status, overall_score, created_at, interview_reports(id)",
       )
       .eq("user_id", id)
       .order("created_at", { ascending: false }),
@@ -213,7 +213,8 @@ export default async function CandidateDetailPage({ params }: PageProps<"/admin/
                       <span className={`chip ${st.chip}`}>{st.label}</span>
                     </td>
                     <td className="text-right whitespace-nowrap">
-                      {iv.status === "completed" || iv.status === "abandoned" ? (
+                      {/* Reports exist only once AI evaluation has run; until then show the answers. */}
+                      {iv.interview_reports ? (
                         <Link href={`/admin/reports?id=${iv.id}`} className="font-semibold">
                           View report
                         </Link>

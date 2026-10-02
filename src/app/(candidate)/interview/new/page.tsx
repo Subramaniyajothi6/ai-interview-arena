@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import { Stepper } from "@/components/ui/stepper";
 import { requireUser } from "@/lib/auth";
+import { DIFFICULTIES, INTERVIEW_TYPES } from "@/lib/constants";
 import { SetupForm } from "./setup-form";
 
 export const metadata: Metadata = { title: "New interview" };
 
-export default async function NewInterviewPage() {
+export default async function NewInterviewPage({ searchParams }: PageProps<"/interview/new">) {
   const { profile, supabase } = await requireUser("/interview/new");
+  // "Practice now" links pre-select a type and difficulty.
+  const sp = await searchParams;
+  const type = INTERVIEW_TYPES.find((t) => t.value === sp.type)?.value ?? "technical";
+  const difficulty = DIFFICULTIES.find((x) => x.value === sp.difficulty)?.value ?? "medium";
   const { data: settings } = await supabase
     .from("app_settings")
     .select("questions_per_interview")
@@ -22,8 +27,8 @@ export default async function NewInterviewPage() {
         defaults={{
           jobRole: profile.preferred_role ?? "Full Stack Developer",
           experienceLevel: profile.experience_level ?? "fresher",
-          interviewType: "technical",
-          difficulty: "medium",
+          interviewType: type,
+          difficulty,
         }}
       />
     </div>

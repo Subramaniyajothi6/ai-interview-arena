@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AutoFilterForm } from "@/components/admin/auto-filter-form";
+import { CriteriaBars } from "@/components/ui/criteria-bars";
 import { Icon } from "@/components/ui/icon";
 import { TrendChart } from "@/components/ui/trend-chart";
 import { requireUser } from "@/lib/auth";
@@ -14,6 +16,14 @@ import {
 } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Interview history" };
+
+// The four criteria the history board summarises.
+const CRITERIA = [
+  { key: "technical_knowledge", label: "Technical accuracy" },
+  { key: "relevance", label: "Relevance" },
+  { key: "communication", label: "Communication" },
+  { key: "completeness", label: "Completeness" },
+] as const;
 
 const RANGES = [
   { value: "30", label: "Last 30 days" },
@@ -36,7 +46,7 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
   let query = supabase
     .from("interviews")
     .select(
-      "id, job_role, interview_type, difficulty, status, overall_score, created_at, interview_reports(id)",
+      "id, job_role, interview_type, difficulty, status, overall_score, created_at, interview_reports(technical_knowledge, relevance, communication, completeness)",
     )
     .order("created_at", { ascending: false });
   if (role) query = query.eq("job_role", role as JobRole);
@@ -48,77 +58,104 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
   const interviews = data ?? [];
   const scored = interviews.filter((i) => i.overall_score !== null).reverse();
   const filtered = Boolean(role || type || range !== "all");
+  const reports = interviews.flatMap((i) => (i.interview_reports ? [i.interview_reports] : []));
+  const avg = (key: (typeof CRITERIA)[number]["key"]) => {
+    const values = reports.map((r) => r[key]).filter((v): v is number => v !== null);
+    return values.length ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : null;
+  };
+  const averages = reports.length
+    ? CRITERIA.map((c) => ({ label: c.label, score: avg(c.key) }))
+    : null;
 
   return (
     <div className="mx-auto flex max-w-[1120px] flex-col gap-5">
-      <form className="card flex flex-wrap items-end gap-3 !py-4" aria-label="Filter interviews">
-        <div className="min-w-44 grow sm:grow-0">
-          <label className="label" htmlFor="role">
-            Job role
-          </label>
-          <select id="role" name="role" className="input" defaultValue={role}>
-            <option value="">All job roles</option>
-            {JOB_ROLES.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="min-w-36 grow sm:grow-0">
-          <label className="label" htmlFor="type">
-            Interview type
-          </label>
-          <select id="type" name="type" className="input" defaultValue={type}>
-            <option value="">All types</option>
-            {INTERVIEW_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="min-w-36 grow sm:grow-0">
-          <label className="label" htmlFor="range">
-            Date range
-          </label>
-          <select id="range" name="range" className="input" defaultValue={range}>
-            {RANGES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" className="btn btn-sec">
-          Apply
-        </button>
+      <AutoFilterForm label="Filter interviews" className="flex flex-wrap items-center gap-3">
+        <select
+          name="role"
+          aria-label="Job role"
+          className="input !w-auto min-w-48 grow sm:grow-0"
+          defaultValue={role}
+        >
+          <option value="">All job roles</option>
+          {JOB_ROLES.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+        <select
+          name="type"
+          aria-label="Interview type"
+          className="input !w-auto min-w-40 grow sm:grow-0"
+          defaultValue={type}
+        >
+          <option value="">All types</option>
+          {INTERVIEW_TYPES.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+        <select
+          name="range"
+          aria-label="Date range"
+          className="input !w-auto min-w-40 grow sm:grow-0"
+          defaultValue={range}
+        >
+          {RANGES.map((r) => (
+            <option key={r.value} value={r.value}>
+              {r.label}
+            </option>
+          ))}
+        </select>
+        <noscript>
+          <button type="submit" className="btn btn-sec">
+            Apply
+          </button>
+        </noscript>
         {filtered && (
-          <Link href="/history" className="btn btn-ghost">
+          <Link href="/history" className="btn btn-ghost btn-sm">
             Clear
           </Link>
         )}
-        <div className="grow" />
-        <Link href="/interview/new" className="btn">
+        <Link href="/interview/new" className="btn ml-auto">
           <Icon name="plusCircle" size={16} />
           New interview
         </Link>
-      </form>
+      </AutoFilterForm>
 
-      {scored.length > 1 && (
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <section className="card flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
             <h3 className="text-base">Overall score by attempt</h3>
             <span className="text-xs text-muted">AI estimates</span>
           </div>
-          <TrendChart
-            points={scored.slice(-10).map((i) => ({
-              label: formatShortDate(i.created_at),
-              score: i.overall_score!,
-            }))}
-          />
+          {scored.length > 1 ? (
+            <TrendChart
+              points={scored.slice(-10).map((i) => ({
+                label: formatShortDate(i.created_at),
+                score: i.overall_score!,
+              }))}
+            />
+          ) : (
+            <p className="py-10 text-center text-sm text-muted">
+              {scored.length === 1
+                ? "Your trend appears after your second scored interview."
+                : "Scores appear here once your interviews are evaluated."}
+            </p>
+          )}
         </section>
-      )}
+        <section className="card flex flex-col gap-3">
+          <h3 className="text-base">Average by criterion</h3>
+          {averages ? (
+            <CriteriaBars labelWidth={128} items={averages} />
+          ) : (
+            <p className="py-6 text-sm text-muted">
+              No evaluated interviews{filtered ? " match these filters" : " yet"}.
+            </p>
+          )}
+        </section>
+      </div>
 
       <section className="card !p-0">
         {interviews.length === 0 ? (
@@ -159,8 +196,7 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
               <tbody>
                 {interviews.map((iv) => {
                   const status = STATUS_LABELS[iv.status];
-                  const report = iv.interview_reports as unknown;
-                  const hasReport = Array.isArray(report) ? report.length > 0 : Boolean(report);
+                  const hasReport = Boolean(iv.interview_reports);
                   return (
                     <tr key={iv.id}>
                       <td className="whitespace-nowrap">{formatDate(iv.created_at)}</td>

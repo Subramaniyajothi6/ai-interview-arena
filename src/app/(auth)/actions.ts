@@ -1,14 +1,20 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isSupabaseConfigured, publicEnv } from "@/lib/env";
+import { SESSION_ONLY_COOKIE, sessionOnlyDeadline } from "@/lib/supabase/remember";
 import { createClient } from "@/lib/supabase/server";
 import {
+  EMAIL_RATE_LIMIT_MESSAGE,
   fieldErrors,
   forgotPasswordSchema,
+  isEmailRateLimited,
   loginSchema,
   registerSchema,
   resetPasswordSchema,
+  signInErrorMessage,
+  signUpErrorMessage,
   type FieldErrors,
 } from "@/lib/validation/auth";
 
@@ -34,20 +40,25 @@ function safeNext(value: FormDataEntryValue | null): string {
 }
 
 export async function login(_prev: AuthFormState, formData: FormData): Promise<AuthFormState> {
-  const values = formValues(formData, ["email"]);
+  const values = formValues(formData, ["email", "remember"]);
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { fieldErrors: fieldErrors(parsed.error), values };
   if (!isSupabaseConfigured()) return { error: NOT_CONFIGURED, values };
 
-  const supabase = await createClient();
+  // Without "Remember me" the session ends when the browser closes.
+  const remember = formData.get("remember") === "on";
+  const cookieStore = await cookies();
+  if (remember) cookieStore.delete(SESSION_ONLY_COOKIE);
+  else
+    cookieStore.set(SESSION_ONLY_COOKIE, sessionOnlyDeadline(), {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+    });
+
+  const supabase = await createClient({ sessionOnly: !remember });
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) {
-    const message =
-      error.code === "email_not_confirmed"
-        ? "Please confirm your email first. Check your inbox for the link."
-        : "Incorrect email or password.";
-    return { error: message, values };
-  }
+  if (error) return { error: signInErrorMessage(error), values };
 
   // Admins who use the normal login page go straight to the admin console.
   const { data: profile } = await supabase
@@ -75,15 +86,7 @@ export async function register(_prev: AuthFormState, formData: FormData): Promis
       emailRedirectTo: `${publicEnv.siteUrl}/auth/callback?next=/dashboard`,
     },
   });
-  if (error) {
-    const message =
-      error.code === "user_already_exists"
-        ? "An account with this email already exists. Try logging in."
-        : error.code === "weak_password"
-          ? "That password is too weak. Use a longer password with a mix of characters."
-          : "We couldn't create your account. Please try again.";
-    return { error: message, values };
-  }
+  if (error) return { error: signUpErrorMessage(error), values };
 
   // With email confirmation on, there is no session until the link is clicked.
   if (!data.session) {
@@ -104,9 +107,11 @@ export async function forgotPassword(
   if (!isSupabaseConfigured()) return { error: NOT_CONFIGURED, values };
 
   const supabase = await createClient();
-  await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${publicEnv.siteUrl}/auth/callback?next=/reset-password`,
   });
+  // The rate limit applies to every address, so reporting it reveals nothing.
+  if (error && isEmailRateLimited(error)) return { error: EMAIL_RATE_LIMIT_MESSAGE, values };
 
   // Same message whether or not the account exists, so emails can't be probed.
   return {
@@ -145,16 +150,18 @@ export async function resetPassword(
 export async function logout() {
   if (isSupabaseConfigured()) {
     const supabase = await createClient();
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
   }
+  (await cookies()).delete(SESSION_ONLY_COOKIE);
   redirect("/login");
 }
 
 export async function adminLogout() {
   if (isSupabaseConfigured()) {
     const supabase = await createClient();
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
   }
+  (await cookies()).delete(SESSION_ONLY_COOKIE);
   redirect("/admin/login");
 }
 
@@ -168,7 +175,9 @@ export async function adminLogin(_prev: AuthFormState, formData: FormData): Prom
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error || !data.user) return { error: "Incorrect email or password.", values };
+  if (error || !data.user) {
+    return { error: error ? signInErrorMessage(error) : "Incorrect email or password.", values };
+  }
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -176,7 +185,7 @@ export async function adminLogin(_prev: AuthFormState, formData: FormData): Prom
     .eq("id", data.user.id)
     .single();
   if (profile?.role !== "admin" || profile.status !== "active") {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
     return { error: "This account does not have administrator access.", values };
   }
 

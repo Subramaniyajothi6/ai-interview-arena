@@ -81,7 +81,9 @@ export function useSpeechToText(onFinal: (text: string) => void) {
       }
     };
     // Browsers stop after a pause; restart while the user still wants to record.
+    // An older instance (replaced by a restart) just ends.
     r.onend = () => {
+      if (recognition.current !== r) return;
       setInterim("");
       if (wanted.current) r.start();
       else setListening(false);

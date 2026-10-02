@@ -14,7 +14,7 @@ export const CANDIDATE_NAV: { href: string; label: string; short: string; icon: 
 
 const TITLES: [string, string][] = [
   ["/interview/new", "New interview"],
-  ["/interview", "Interview"],
+  ["/interview", "New interview"],
   ["/reports", "Evaluation report"],
   ...CANDIDATE_NAV.map((n) => [n.href, n.label] as [string, string]),
 ];
@@ -49,7 +49,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Candidate"
-      className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 print:!hidden border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       {CANDIDATE_NAV.map((item) => {
         const active = isActive(pathname, item.href);

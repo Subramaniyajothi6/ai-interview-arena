@@ -52,14 +52,17 @@ Secret keys are only read in files marked `server-only`, so importing them into 
 
 ## Scripts
 
-| Command             | Description                  |
-| ------------------- | ---------------------------- |
-| `npm run dev`       | Start the development server |
-| `npm run build`     | Production build             |
-| `npm run start`     | Run the production build     |
-| `npm run lint`      | ESLint                       |
-| `npm run typecheck` | TypeScript type check        |
-| `npm run format`    | Prettier                     |
+| Command             | Description                    |
+| ------------------- | ------------------------------ |
+| `npm run dev`       | Start the development server   |
+| `npm run build`     | Production build               |
+| `npm run start`     | Run the production build       |
+| `npm run lint`      | ESLint                         |
+| `npm run typecheck` | TypeScript type check          |
+| `npm run format`    | Prettier                       |
+| `npm test`          | Unit tests (Vitest)            |
+| `npm run test:db`   | Database security tests        |
+| `npm run test:e2e`  | End-to-end tests (app running) |
 
 ## Project structure
 
@@ -76,5 +79,7 @@ docs/               PPT, UI/UX design, database, API and testing docs
 ## Documentation
 
 - [Database](docs/DATABASE.md): schema, relationships, security model and migrations
+- [Testing](docs/TESTING.md): automated suites, 31 test cases with results and screenshots
+- [Decisions](docs/DECISIONS.md): product and technical decisions, including how loading, empty, error, offline and other screen states are handled
 
-API, testing and deployment documentation will be added in `docs/` as each part is built.
+API and deployment documentation will be added in `docs/` as each part is built.

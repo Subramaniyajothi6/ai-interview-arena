@@ -31,3 +31,16 @@ export function daysAgoIso(days: number) {
 export function nowMs() {
   return Date.now();
 }
+
+// Time between two timestamps as m:ss, or h:mm:ss past an hour ("—" if either is missing).
+export function formatDuration(start: string | null, end: string | null) {
+  if (!start || !end) return "—";
+  const total = Math.max(
+    0,
+    Math.round((new Date(end).getTime() - new Date(start).getTime()) / 1000),
+  );
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = String(total % 60).padStart(2, "0");
+  return h ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
+}

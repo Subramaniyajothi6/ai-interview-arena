@@ -5,6 +5,8 @@ import { useRef, useState, useTransition } from "react";
 import { FormAlert } from "@/components/ui/form";
 import { Icon } from "@/components/ui/icon";
 import type { ParsedResume } from "@/lib/resume/analyze";
+import { splitEntry } from "@/lib/resume/entry";
+import { isNetworkError, withNetworkErrors } from "@/lib/network";
 import { createClient } from "@/lib/supabase/client";
 import { processResume, attachExistingResume, type ProcessResumeResult } from "../../actions";
 
@@ -38,8 +40,10 @@ export function ResumeStep({
   const inputRef = useRef<HTMLInputElement>(null);
   const busy = status !== "idle";
 
-  function finish(result: ProcessResumeResult) {
-    if (result.ok) {
+  function finish(result: ProcessResumeResult | { networkError: string }) {
+    if (isNetworkError(result)) {
+      setError(result.networkError);
+    } else if (result.ok) {
       setAttached({ resumeId: result.resumeId, fileName: result.fileName, parsed: result.parsed });
       setError(null);
     } else {
@@ -73,14 +77,18 @@ export function ResumeStep({
 
     setStatus("reading");
     startTransition(async () =>
-      finish(await processResume({ interviewId, path, fileName: file.name })),
+      finish(
+        await withNetworkErrors(() => processResume({ interviewId, path, fileName: file.name })),
+      ),
     );
   }
 
   function reuse(resumeId: string) {
     setError(null);
     setStatus("reading");
-    startTransition(async () => finish(await attachExistingResume({ interviewId, resumeId })));
+    startTransition(async () =>
+      finish(await withNetworkErrors(() => attachExistingResume({ interviewId, resumeId }))),
+    );
   }
 
   return (
@@ -268,10 +276,16 @@ function AnalysisPanel({ parsed, busy }: { parsed: ParsedResume | null; busy: bo
                     ))}
                   </div>
                 ) : (
-                  <ul className="flex flex-col gap-1.5 text-[13px] leading-snug">
-                    {b.items.map((i) => (
-                      <li key={i}>{i}</li>
-                    ))}
+                  <ul className="flex flex-col gap-2 text-[13px] leading-snug">
+                    {b.items.map((i) => {
+                      const [main, detail] = splitEntry(i);
+                      return (
+                        <li key={i}>
+                          <b className="font-semibold">{main}</b>
+                          {detail && <span className="block text-muted">{detail}</span>}
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
