@@ -45,8 +45,8 @@ export default async function CompletePage({ params }: PageProps<"/interview/[id
           <div
             className={`flex size-20 items-center justify-center rounded-full ${
               ended
-                ? "bg-warning-bg text-warning shadow-[0_0_0_10px_#FFFBF2]"
-                : "bg-success-bg text-success shadow-[0_0_0_10px_#F4FDF7]"
+                ? "bg-warning-bg text-warning shadow-[0_0_0_10px_var(--color-warning-soft)]"
+                : "bg-success-bg text-success shadow-[0_0_0_10px_var(--color-success-soft)]"
             }`}
           >
             <Icon name={ended ? "alert" : "check"} size={38} strokeWidth={2.5} />
@@ -66,7 +66,7 @@ export default async function CompletePage({ params }: PageProps<"/interview/[id
               [String(skipped), "Skipped"],
               [formatDuration(iv.started_at, iv.ended_at), "Duration"],
             ].map(([value, label]) => (
-              <div key={label} className="rounded-xl border border-border-soft bg-[#FCFBFA] p-4">
+              <div key={label} className="rounded-xl border border-border-soft bg-surface-2 p-4">
                 <div className="font-display text-[26px] font-bold">{value}</div>
                 <div className="mt-0.5 text-xs text-muted">{label}</div>
               </div>

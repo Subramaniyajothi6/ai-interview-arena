@@ -6,6 +6,7 @@ import { useSpeechToText } from "@/components/interview/use-speech-to-text";
 import { FormAlert } from "@/components/ui/form";
 import { Icon } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { isNetworkError, withNetworkErrors } from "@/lib/network";
 import { endInterview, submitAnswer } from "./actions";
 
@@ -219,6 +220,7 @@ export function InterviewRoom({
                 <Icon name="clock" size={12} />
                 {elapsed}
               </span>
+              <ThemeToggle variant="icon" />
               <button
                 type="button"
                 className="btn btn-danger btn-sm !px-3"
@@ -270,6 +272,7 @@ export function InterviewRoom({
               <Icon name="clock" size={12} />
               {elapsed}
             </span>
+            <ThemeToggle variant="icon" />
             <button
               type="button"
               className="btn btn-danger btn-sm"
@@ -286,7 +289,7 @@ export function InterviewRoom({
           <div
             role="alertdialog"
             aria-labelledby="end-title"
-            className="-mx-4 mt-3 -mb-3 border-t border-[#F4C7C2] bg-danger-bg px-4 py-3 sm:-mx-8 sm:px-8"
+            className="-mx-4 mt-3 -mb-3 border-t border-danger-line bg-danger-bg px-4 py-3 sm:-mx-8 sm:px-8"
           >
             <div className="mx-auto flex max-w-[1216px] flex-wrap items-center justify-between gap-3">
               <p id="end-title" className="text-sm text-danger">
@@ -323,7 +326,7 @@ export function InterviewRoom({
         {current ? (
           <div className="flex min-w-0 grow flex-col gap-4">
             {previous && (
-              <div className="hidden items-center gap-3 rounded-card border border-border bg-[#FBFAF8] px-4 py-2.5 sm:flex">
+              <div className="hidden items-center gap-3 rounded-card border border-border bg-surface-2 px-4 py-2.5 sm:flex">
                 <span className="chip chip-ok shrink-0">
                   <Icon name="check" size={12} strokeWidth={3} />
                   Answered
@@ -337,7 +340,7 @@ export function InterviewRoom({
 
             <section
               className={`card flex items-start gap-5 !p-5 sm:!p-[26px] ${
-                isFollowUp ? "!border-primary-300 !bg-[#FAF8FF]" : ""
+                isFollowUp ? "!border-primary-300 !bg-primary-50" : ""
               }`}
             >
               <span className="hidden size-14 shrink-0 items-center justify-center rounded-2xl bg-primary-600 text-white sm:flex">
@@ -426,7 +429,7 @@ export function InterviewRoom({
                     onClick={toggleRecording}
                     aria-label={speech.listening ? "Stop recording" : "Start recording"}
                     aria-pressed={speech.listening}
-                    className={`flex size-16 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 text-white shadow-[0_0_0_8px_#EDE9FE] ${
+                    className={`flex size-16 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 text-white shadow-[0_0_0_8px_var(--color-primary-100)] ${
                       speech.listening ? "bg-primary-700" : "bg-primary-600"
                     }`}
                   >
@@ -439,7 +442,7 @@ export function InterviewRoom({
               {speech.error && <FormAlert tone="error">{speech.error}</FormAlert>}
 
               {mode === "voice" ? (
-                <div className="flex grow flex-col gap-2 rounded-xl border border-border-soft bg-[#FCFBFA] p-3.5 focus-within:border-primary-600">
+                <div className="flex grow flex-col gap-2 rounded-xl border border-border-soft bg-surface-2 p-3.5 focus-within:border-primary-600">
                   <label htmlFor="answer" className="eyebrow !text-muted">
                     Live transcript
                   </label>
@@ -555,7 +558,7 @@ export function InterviewRoom({
                         ? "bg-border-soft text-muted"
                         : q.status === "current"
                           ? "border-2 border-primary-600 bg-surface text-primary-900"
-                          : "border-[1.5px] border-[#D6D2C8] text-muted"
+                          : "border-[1.5px] border-border-strong text-muted"
                   }`}
                 >
                   {q.status === "answered" ? (
@@ -597,7 +600,7 @@ export function InterviewRoom({
                 onClick={toggleRecording}
                 aria-label={speech.listening ? "Stop recording" : "Answer by voice"}
                 aria-pressed={speech.listening}
-                className="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-primary-600 text-white shadow-[0_0_0_6px_#EDE9FE]"
+                className="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-primary-600 text-white shadow-[0_0_0_6px_var(--color-primary-100)]"
               >
                 <Icon name="mic" size={20} />
               </button>

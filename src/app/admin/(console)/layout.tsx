@@ -9,6 +9,7 @@ import { UserBadge } from "@/components/layout/user-badge";
 import { Icon } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
 import { requireAdmin } from "@/lib/auth";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const { profile } = await requireAdmin();
@@ -37,6 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <AdminPageTitle />
           <div className="flex items-center gap-3">
             <AdminHeaderAction />
+            <ThemeToggle variant="responsive" />
             <UserBadge
               name={profile.full_name}
               subtitle="Administrator"

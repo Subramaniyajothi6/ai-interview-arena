@@ -45,6 +45,8 @@ The app needs to handle every situation a user can run into, but not every situa
 ## 4. Design
 
 - **The design canvas is the source of truth** for every screen, including the three phone boards. The exported `Design.pdf` (27 Sep) is older than the canvas (changed 30 Sep), so comparisons are made against the canvas.
+- **Light and dark mode.** Every page has a dark version in the same violet family. It follows the device setting until the user picks one with the switch, and the choice is remembered in the browser and applied before the page paints (no flash). The switch is a sliding switch next to the bell (next to the profile on admin pages) and a smaller bordered icon where space is tight (the interview room, phone headers). All colours come from theme tokens in `globals.css`, so no screen keeps a light-only colour in dark mode. Printing always uses the light design.
+- **Scores are coloured by result**: rings and criteria bars are green from 75, amber from 50 and red below, so strong and weak areas stand out. The report opens with the AI summary, the active sidebar item has a violet marker, and cards have a soft shadow in light mode.
 - **One responsive codebase** instead of separate mobile pages. Phone layouts reorder and hide sections to match the mobile boards.
 - **Profile is read-only until "Edit profile" is clicked.** Fields, skills and the photo can only change in edit mode; Cancel restores the saved values.
 - **The reset-password card on the login page opens only when "Forgot password?" is clicked** (beside the form on wide screens; smaller screens use the reset page).

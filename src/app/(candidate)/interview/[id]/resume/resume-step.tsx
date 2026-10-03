@@ -262,7 +262,7 @@ function AnalysisPanel({ parsed, busy }: { parsed: ParsedResume | null; busy: bo
             {boxes.map((b) => (
               <div
                 key={b.title}
-                className="flex flex-col gap-2.5 rounded-xl border border-border-soft bg-[#FCFBFA] p-3.5"
+                className="flex flex-col gap-2.5 rounded-xl border border-border-soft bg-surface-2 p-3.5"
               >
                 <span className="text-xs font-bold tracking-[0.06em] text-muted uppercase">
                   {b.title}

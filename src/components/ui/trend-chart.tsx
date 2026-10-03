@@ -32,20 +32,32 @@ export function TrendChart({
             x2={width - pad.right}
             y1={y(v)}
             y2={y(v)}
-            stroke="#F0EEE9"
+            className="stroke-border-soft"
             strokeWidth="1"
           />
-          <text x={pad.left - 8} y={y(v) + 4} textAnchor="end" fontSize="11" fill="#5F5C68">
+          <text x={pad.left - 8} y={y(v) + 4} textAnchor="end" fontSize="11" className="fill-muted">
             {v}
           </text>
         </g>
       ))}
-      <path d={area} fill="#6D28D9" opacity="0.08" />
-      <path d={line} fill="none" stroke="#6D28D9" strokeWidth="2.5" strokeLinejoin="round" />
+      <path d={area} className="fill-primary-600" opacity="0.08" />
+      <path
+        d={line}
+        fill="none"
+        className="stroke-primary-600"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
       {points.map((p, i) => (
         <g key={i}>
-          <circle cx={x(i)} cy={y(p.score)} r="4" fill="#fff" stroke="#6D28D9" strokeWidth="2" />
-          <text x={x(i)} y={height - 8} textAnchor="middle" fontSize="11" fill="#5F5C68">
+          <circle
+            cx={x(i)}
+            cy={y(p.score)}
+            r="4"
+            className="fill-surface stroke-primary-600"
+            strokeWidth="2"
+          />
+          <text x={x(i)} y={height - 8} textAnchor="middle" fontSize="11" className="fill-muted">
             {p.label}
           </text>
         </g>
@@ -57,7 +69,7 @@ export function TrendChart({
           textAnchor="middle"
           fontSize="13"
           fontWeight="700"
-          fill="#1C1B22"
+          className="fill-text"
         >
           {last.score}
         </text>

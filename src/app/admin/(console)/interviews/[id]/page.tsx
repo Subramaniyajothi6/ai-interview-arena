@@ -194,7 +194,7 @@ export default async function AdminInterviewDetailPage({
             </header>
 
             <div className="grid gap-3 sm:ml-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]">
-              <section className="card flex flex-col gap-2.5 !bg-[#FCFBFA]">
+              <section className="card flex flex-col gap-2.5 !bg-surface-2">
                 <div className="flex items-center justify-between">
                   <h4 className="text-[11px] font-bold tracking-[0.12em] text-text-2 uppercase">
                     Candidate answer

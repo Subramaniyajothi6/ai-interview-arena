@@ -13,7 +13,7 @@ export function Logo({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-2.5 no-underline ${tone === "light" ? "text-white hover:text-white" : "text-ink hover:text-ink"}`}
+      className={`flex items-center gap-2.5 no-underline ${tone === "light" ? "text-white hover:text-white" : "text-text hover:text-text"}`}
     >
       <span className="flex size-9 items-center justify-center rounded-[10px] bg-primary-600 text-white">
         <Icon name="sparkle" />

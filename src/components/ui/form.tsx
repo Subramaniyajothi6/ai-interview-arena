@@ -49,8 +49,8 @@ export function FormAlert({ tone, children }: { tone: "error" | "success"; child
       role={error ? "alert" : "status"}
       className={`flex gap-2.5 rounded-[10px] border px-3.5 py-3 text-[13px] leading-normal ${
         error
-          ? "border-[#F4C7C2] bg-danger-bg text-danger"
-          : "border-[#ABEFC6] bg-success-bg text-success"
+          ? "border-danger-line bg-danger-bg text-danger"
+          : "border-success-line bg-success-bg text-success"
       }`}
     >
       <Icon name={error ? "alert" : "check"} size={16} className="mt-px" />

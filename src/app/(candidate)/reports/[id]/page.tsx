@@ -191,6 +191,18 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
 
       {report ? (
         <>
+          {/* The AI summary comes first: the one-line answer to "how did I do?" */}
+          {report.summary && (
+            <section className="card flex flex-col gap-2 !border-primary-200 !bg-primary-50 print:break-inside-avoid">
+              <h3 className="flex items-center gap-2 text-base">
+                <span className="text-primary-600">
+                  <Icon name="sparkle" size={18} />
+                </span>
+                Summary
+              </h3>
+              <p className="text-sm leading-relaxed text-text-2">{report.summary}</p>
+            </section>
+          )}
           <div className="grid gap-4 md:grid-cols-[270px_minmax(0,1fr)]">
             <section className="card flex items-center gap-4 max-md:!p-4 md:flex-col md:justify-center md:gap-2.5 md:text-center">
               <span className="md:hidden">
@@ -229,29 +241,18 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
               />
             </section>
           </div>
-          {report.summary && (
-            <section className="card flex flex-col gap-2 print:break-inside-avoid">
-              <h3 className="flex items-center gap-2 text-base">
-                <span className="text-primary-600">
-                  <Icon name="sparkle" size={18} />
-                </span>
-                Summary
-              </h3>
-              <p className="text-sm leading-relaxed text-text-2">{report.summary}</p>
-            </section>
-          )}
           <div className="grid gap-4 md:grid-cols-2">
             <ListCard
               title="Strengths"
               icon="check"
               items={report.strengths}
-              tone="md:border-[#CDEBD9] md:bg-[#F4FDF7] max-md:border-l-success max-md:[&_li]:marker:text-success [&_.ico]:text-success"
+              tone="md:border-success-line md:bg-success-soft max-md:border-l-success max-md:[&_li]:marker:text-success [&_.ico]:text-success"
             />
             <ListCard
               title="Areas for improvement"
               icon="target"
               items={report.improvements}
-              tone="md:border-[#F7DFB0] md:bg-[#FFFBF2] max-md:border-l-accent max-md:[&_li]:marker:text-accent [&_.ico]:text-warning"
+              tone="md:border-warning-line md:bg-warning-soft max-md:border-l-accent max-md:[&_li]:marker:text-accent [&_.ico]:text-warning"
             />
           </div>
         </>
@@ -642,7 +643,7 @@ function PlanPreview({
         {columns.map((col) => (
           <div
             key={col.title}
-            className="flex flex-col gap-2 rounded-xl border border-border-soft bg-[#FCFBFA] p-3.5"
+            className="flex flex-col gap-2 rounded-xl border border-border-soft bg-surface-2 p-3.5"
           >
             <h4 className="flex items-center gap-2 text-sm">
               <span className="text-primary-600">

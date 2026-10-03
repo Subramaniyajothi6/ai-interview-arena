@@ -36,8 +36,8 @@ export function Stepper({
                   done
                     ? "bg-primary-600 text-white"
                     : active
-                      ? "bg-primary-600 text-white shadow-[0_0_0_4px_#EDE9FE]"
-                      : "border-[1.5px] border-[#D6D2C8] text-muted"
+                      ? "bg-primary-600 text-white shadow-[0_0_0_4px_var(--color-primary-100)]"
+                      : "border-[1.5px] border-border-strong text-muted"
                 }`}
               >
                 {done ? <Icon name="check" size={15} strokeWidth={2.5} /> : i + 1}

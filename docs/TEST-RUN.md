@@ -23,12 +23,12 @@ and how each problem is fixed. Automated suites are described in [TESTING.md](./
 | A. New candidate | 5 sections | 4 (A2–A5) | 0 (1 fixed) | 0 | 1 (A1) |
 | B. An interview | 6 sections | 6 (all) | 0 (2 fixed) | 0 | 0 |
 | C. Admin | 7 sections | 7 (all) | 0 (2 fixed) | 0 | 0 |
-| D. Edge cases | 7 cases | 6 | 1 fixed (D1, #7 awaiting production re-test) | 0 | 0 |
+| D. Edge cases | 7 cases | 7 (all; D1 after fix) | 0 | 0 | 0 |
 | E. Different data | 25 checks | 0 | 0 | 0 | 25 |
 | F. Job description | 11 checks | 0 | 0 | 0 | 11 |
 | G. AI | 14 checks | 14 local + 14 production | 0 | 0 | 0 |
 
-Open issues: **0** · Fixed, awaiting re-test: **1** (#7) · Closed: **6**
+Open issues: **0** · Fixed, awaiting re-test: **0** · Closed: **7**
 
 ---
 
@@ -219,7 +219,7 @@ Currently loaded on `sample@gmail.com`: **rich** (2026-10-02).
 
 | # | Case | Expected | Result | Issue |
 |---|---|---|---|---|
-| 1 | Wrong password 5+ times quickly | Eventually "Too many sign-in attempts…" | 🔧 | [#7](#7--no-lockout-after-repeated-wrong-passwords) — was never blocked; fixed: 6th wrong password refused (localhost, `npm run test:lockout`) |
+| 1 | Wrong password 5+ times quickly | Eventually "Too many sign-in attempts…" | ✅ (after fix) | [#7](#7--no-lockout-after-repeated-wrong-passwords) — was never blocked; fixed: 6th wrong password refused (localhost and production, `npm run test:lockout`) |
 | 2 | Session ended elsewhere: log in in two browsers, change password in one (Forgot password → email link), reload the other | "Your session has expired", no endless redirect | ✅ | Production: all sessions revoked elsewhere → /login?error=session_expired, 2 navigations, no loop |
 | 3 | Remember me unticked | Logged out after closing Chrome, or after 12 h at most | ✅ | Production: unticked → signed out after fully closing and reopening Chrome (same profile), and after the 12 h deadline; ticked → still signed in after reopening (400-day cookies) |
 | 4 | Open /xyz | Friendly 404 page | ✅ | Production: 404 "Page not found" |
@@ -544,7 +544,7 @@ end-to-end 50/50.
 |---|---|
 | Found at | D1 (wrong password many times quickly) |
 | Severity | Major (security) — passwords can be guessed without any slowdown |
-| Status | **Fixed – awaiting re-test on production** |
+| Status | **Closed** — deployed (7c72014); `npm run test:lockout` 8/8 on production |
 
 **Expected:** after several wrong passwords, "Too many sign-in attempts. Please wait a few minutes and try again."
 

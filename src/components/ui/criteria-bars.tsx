@@ -1,5 +1,7 @@
-// Horizontal score bars, one per evaluation criterion.
-// Scores below 75 use the lighter violet, like the design.
+import { bandColor } from "@/lib/score";
+
+// Horizontal score bars, one per evaluation criterion, coloured green /
+// amber / red by score band.
 export function CriteriaBars({
   items,
   labelWidth = 128,
@@ -25,8 +27,8 @@ export function CriteriaBars({
               aria-valuenow={item.score ?? undefined}
             >
               <span
-                className={`absolute inset-y-0 left-0 rounded ${value >= 75 ? "bg-primary-600" : "bg-primary-500"}`}
-                style={{ width: `${value}%` }}
+                className="absolute inset-y-0 left-0 rounded"
+                style={{ width: `${value}%`, background: bandColor(value) }}
               />
             </span>
             <span className="w-7 text-right font-display font-bold">{item.score ?? "—"}</span>

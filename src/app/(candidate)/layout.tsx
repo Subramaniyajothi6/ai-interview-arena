@@ -5,6 +5,7 @@ import { NotificationBell } from "@/components/layout/notification-bell";
 import { UserBadge } from "@/components/layout/user-badge";
 import { Icon } from "@/components/ui/icon";
 import { Logo } from "@/components/ui/logo";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { requireUser } from "@/lib/auth";
 import { getNotifications } from "@/lib/data/notifications";
 
@@ -56,6 +57,7 @@ export default async function CandidateLayout({ children }: { children: React.Re
             <PageTitle />
           </div>
           <div className="flex items-center gap-2 sm:gap-3.5">
+            <ThemeToggle variant="responsive" />
             <NotificationBell items={notifications} />
             <UserBadge
               name={profile.full_name}

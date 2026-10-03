@@ -253,7 +253,7 @@ export default async function PlanPage() {
               {projects.map((p) => (
                 <div
                   key={p.title}
-                  className="flex flex-col gap-2 rounded-xl border border-border-soft bg-[#FCFBFA] p-3.5"
+                  className="flex flex-col gap-2 rounded-xl border border-border-soft bg-surface-2 p-3.5"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <span className="text-sm font-semibold">{p.title}</span>

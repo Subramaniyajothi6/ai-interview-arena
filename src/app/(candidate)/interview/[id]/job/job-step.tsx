@@ -255,7 +255,7 @@ function MatchPanel({
         </p>
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border-soft bg-[#FCFBFA] p-4">
+          <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border-soft bg-surface-2 p-4">
             <div className="font-display text-[40px] leading-none font-bold">
               {match.match_percent}%
             </div>

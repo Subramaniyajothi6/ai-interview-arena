@@ -135,7 +135,7 @@ export default async function AdminReportsPage({ searchParams }: PageProps<"/adm
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-xl bg-[#F4FDF7] p-4">
+                <div className="rounded-xl bg-success-soft p-4">
                   <h3 className="text-sm text-success">Strengths</h3>
                   <ul className="mt-2 flex flex-col gap-1.5 text-[13px]">
                     {report.strengths.map((s) => (
@@ -143,7 +143,7 @@ export default async function AdminReportsPage({ searchParams }: PageProps<"/adm
                     ))}
                   </ul>
                 </div>
-                <div className="rounded-xl bg-[#FFFBF2] p-4">
+                <div className="rounded-xl bg-warning-soft p-4">
                   <h3 className="text-sm text-warning">Improvement areas</h3>
                   <ul className="mt-2 flex flex-col gap-1.5 text-[13px]">
                     {report.improvements.map((s) => (

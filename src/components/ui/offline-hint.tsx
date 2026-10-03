@@ -10,7 +10,7 @@ export function OfflineHint() {
   return (
     <p
       role="status"
-      className="flex items-center gap-2 rounded-control border border-[#F7DFB0] bg-warning-bg px-4 py-3 text-[13px] font-semibold text-warning"
+      className="flex items-center gap-2 rounded-control border border-warning-line bg-warning-bg px-4 py-3 text-[13px] font-semibold text-warning"
     >
       <Icon name="alert" size={16} />
       Waiting for your internet connection. This page will load as soon as you&apos;re back online.

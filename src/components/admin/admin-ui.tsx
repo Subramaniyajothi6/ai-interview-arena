@@ -6,7 +6,7 @@ const AVATAR_TONES = [
   "bg-warning-bg text-warning",
   "bg-success-bg text-success",
   "bg-danger-bg text-danger",
-  "bg-[#E0F2FE] text-[#075985]",
+  "bg-info-bg text-info",
   "bg-border-soft text-text-2",
 ];
 

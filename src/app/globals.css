@@ -49,6 +49,16 @@
   --color-warning-bg: #fff7e6;
   --color-danger: #b42318;
   --color-danger-bg: #fef3f2;
+  /* Softer fills and lines for cards. */
+  --color-surface-2: #fcfbfa;
+  --color-border-strong: #d6d2c8;
+  --color-success-soft: #f4fdf7;
+  --color-success-line: #cdebd9;
+  --color-warning-soft: #fffbf2;
+  --color-warning-line: #f7dfb0;
+  --color-danger-line: #f4c7c2;
+  --color-info: #075985;
+  --color-info-bg: #e0f2fe;
 
   --font-sans: var(--font-plex-sans), system-ui, sans-serif;
   --font-display: var(--font-space-grotesk), system-ui, sans-serif;
@@ -56,6 +66,102 @@
 
   --radius-control: 10px;
   --radius-card: 14px;
+}
+
+/* Values used only through var() (inline styles, .card), so they live outside
+   @theme: Tailwind only outputs theme values that a utility class uses. */
+:root {
+  /* Score bands for rings and bars: green from 75, amber from 50, red below. */
+  --color-score-good: #16a34a;
+  --color-score-mid: #d97706;
+  --color-score-low: #dc2626;
+  --shadow-card: 0 1px 2px rgb(23 21 42 / 0.05), 0 2px 8px rgb(23 21 42 / 0.04);
+}
+
+/* Dark theme: the same violet family on a deep ink background. It follows the
+   device setting unless the user picks light or dark with the switch
+   (data-theme on <html>). Screen only, so printing always uses light. */
+@media screen {
+  :root[data-theme="dark"] {
+    --color-bg: #110f1c;
+    --color-surface: #1a1828;
+    --color-surface-2: #1f1c30;
+    --color-border: #2c2843;
+    --color-border-soft: #252238;
+    --color-border-strong: #3a3550;
+    --color-text: #ece9f6;
+    --color-text-2: #cfcade;
+    --color-muted: #a39eb9;
+    --color-ink: #0b0a14;
+    --color-ink-2: #1d1a2e;
+    --color-primary-900: #ddd6fe;
+    --color-primary-700: #c4b5fd;
+    --color-primary-600: #8b5cf6;
+    --color-primary-500: #a78bfa;
+    --color-primary-300: #9a85ee;
+    --color-primary-200: rgb(167 139 250 / 0.28);
+    --color-primary-100: rgb(167 139 250 / 0.16);
+    --color-primary-50: rgb(167 139 250 / 0.09);
+    --color-success: #4ade80;
+    --color-success-bg: rgb(74 222 128 / 0.12);
+    --color-success-soft: rgb(74 222 128 / 0.07);
+    --color-success-line: rgb(74 222 128 / 0.28);
+    --color-warning: #fbbf24;
+    --color-warning-bg: rgb(251 191 36 / 0.12);
+    --color-warning-soft: rgb(251 191 36 / 0.07);
+    --color-warning-line: rgb(251 191 36 / 0.28);
+    --color-danger: #f87171;
+    --color-danger-bg: rgb(248 113 113 / 0.12);
+    --color-danger-line: rgb(248 113 113 / 0.32);
+    --color-info: #7dd3fc;
+    --color-info-bg: rgb(56 189 248 / 0.14);
+    --color-score-good: #4ade80;
+    --color-score-mid: #fbbf24;
+    --color-score-low: #f87171;
+    --shadow-card: none;
+    color-scheme: dark;
+  }
+}
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #110f1c;
+    --color-surface: #1a1828;
+    --color-surface-2: #1f1c30;
+    --color-border: #2c2843;
+    --color-border-soft: #252238;
+    --color-border-strong: #3a3550;
+    --color-text: #ece9f6;
+    --color-text-2: #cfcade;
+    --color-muted: #a39eb9;
+    --color-ink: #0b0a14;
+    --color-ink-2: #1d1a2e;
+    --color-primary-900: #ddd6fe;
+    --color-primary-700: #c4b5fd;
+    --color-primary-600: #8b5cf6;
+    --color-primary-500: #a78bfa;
+    --color-primary-300: #9a85ee;
+    --color-primary-200: rgb(167 139 250 / 0.28);
+    --color-primary-100: rgb(167 139 250 / 0.16);
+    --color-primary-50: rgb(167 139 250 / 0.09);
+    --color-success: #4ade80;
+    --color-success-bg: rgb(74 222 128 / 0.12);
+    --color-success-soft: rgb(74 222 128 / 0.07);
+    --color-success-line: rgb(74 222 128 / 0.28);
+    --color-warning: #fbbf24;
+    --color-warning-bg: rgb(251 191 36 / 0.12);
+    --color-warning-soft: rgb(251 191 36 / 0.07);
+    --color-warning-line: rgb(251 191 36 / 0.28);
+    --color-danger: #f87171;
+    --color-danger-bg: rgb(248 113 113 / 0.12);
+    --color-danger-line: rgb(248 113 113 / 0.32);
+    --color-info: #7dd3fc;
+    --color-info-bg: rgb(56 189 248 / 0.14);
+    --color-score-good: #4ade80;
+    --color-score-mid: #fbbf24;
+    --color-score-low: #f87171;
+    --shadow-card: none;
+    color-scheme: dark;
+  }
 }
 
 @layer base {
@@ -88,7 +194,7 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-card);
     padding: 20px;
-    box-shadow: 0 1px 2px rgba(23, 21, 42, 0.06);
+    box-shadow: var(--shadow-card);
   }
 
   .btn {
@@ -142,11 +248,11 @@
   .btn-danger {
     background: var(--color-surface);
     color: var(--color-danger);
-    border-color: #f4c7c2;
+    border-color: var(--color-danger-line);
   }
   .btn-danger:hover {
     background: var(--color-danger-bg);
-    border-color: #f4c7c2;
+    border-color: var(--color-danger-line);
     color: var(--color-danger);
   }
   .btn-lg {
@@ -280,6 +386,13 @@
     background: var(--color-primary-600);
     color: #fff;
     font-weight: 600;
+  }
+  /* Marker on the left of the current page in both sidebars. */
+  .nav-link[aria-current="page"] {
+    box-shadow: inset 3px 0 0 var(--color-primary-600);
+  }
+  .dnav-link[aria-current="page"] {
+    box-shadow: inset 3px 0 0 var(--color-primary-300);
   }
 
   .opt {

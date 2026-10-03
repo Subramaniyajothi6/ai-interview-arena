@@ -126,7 +126,7 @@ export default async function DashboardPage() {
           ].map(([label, value]) => (
             <div key={label} className="flex items-baseline gap-2 py-[7px] text-sm">
               <dt className="text-text-2">{label}</dt>
-              <span className="-translate-y-1 grow border-b border-dotted border-[#C9C5BC]" />
+              <span className="-translate-y-1 grow border-b border-dotted border-border-strong" />
               <dd className="font-display text-base font-bold">{value}</dd>
             </div>
           ))}
@@ -260,7 +260,7 @@ export default async function DashboardPage() {
               Open improvement plan
             </Link>
           </section>
-          <section className="card flex flex-col gap-3 !border-[#CDEBD9] !bg-[#F4FDF7]">
+          <section className="card flex flex-col gap-3 !border-success-line !bg-success-soft">
             <h3 className="flex items-center gap-2 text-base">
               <span className="text-success">
                 <Icon name="check" />
