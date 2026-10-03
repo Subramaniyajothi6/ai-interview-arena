@@ -22,13 +22,13 @@ and how each problem is fixed. Automated suites are described in [TESTING.md](./
 |---|---|---|---|---|---|
 | A. New candidate | 5 sections | 4 (A2–A5) | 0 (1 fixed) | 0 | 1 (A1) |
 | B. An interview | 6 sections | 6 (all) | 0 (2 fixed) | 0 | 0 |
-| C. Admin | 7 sections | 5 (C1–C5) | 0 (2 fixed) | 0 | 2 (C6–C7) |
-| D. Edge cases | 7 cases | 0 | 0 | 0 | 7 |
+| C. Admin | 7 sections | 7 (all) | 0 (2 fixed) | 0 | 0 |
+| D. Edge cases | 7 cases | 6 | 1 fixed (D1, #7 awaiting production re-test) | 0 | 0 |
 | E. Different data | 25 checks | 0 | 0 | 0 | 25 |
 | F. Job description | 11 checks | 0 | 0 | 0 | 11 |
-| G. AI | 14 checks | 14 local | 0 | 0 | 14 production |
+| G. AI | 14 checks | 14 local + 14 production | 0 | 0 | 0 |
 
-Open issues: **0** · Fixed, awaiting re-test: **1** (#6) · Closed: **5**
+Open issues: **0** · Fixed, awaiting re-test: **1** (#7) · Closed: **6**
 
 ---
 
@@ -201,17 +201,17 @@ Currently loaded on `sample@gmail.com`: **rich** (2026-10-02).
 
 | # | Step | Expected | Result | Issue |
 |---|---|---|---|---|
-| 1 | Clear "Questions per interview", Save settings | "Enter a number." | ⬜ | |
-| 2 | Put back 8, save | "Settings saved." | ⬜ | |
-| 3 | Turn Allow voice answers off, save; start a new interview as the candidate | Voice tab is gone | ⬜ | |
-| 4 | Turn the setting back on | Voice tab returns | ⬜ | |
+| 1 | Clear "Questions per interview", Save settings | "Enter a number." | ✅ | Production, 2026-10-03 |
+| 2 | Put back 8, save | "Settings saved." | ✅ | Production, 2026-10-03 |
+| 3 | Turn Allow voice answers off, save; start a new interview as the candidate | Voice tab is gone | ✅ | Production, 2026-10-03 |
+| 4 | Turn the setting back on | Voice tab returns | ✅ | Production, 2026-10-03 |
 
 ### C7. Disable an account
 
 | # | Step | Expected | Result | Issue |
 |---|---|---|---|---|
-| 1 | Disable account; log in as the candidate in a private window | "This account has been disabled…" | ⬜ | |
-| 2 | Enable account | Candidate can log in again | ⬜ | |
+| 1 | Disable account; log in as the candidate in a private window | "This account has been disabled…" | ✅ | Production, 2026-10-03 (temporary test candidate) |
+| 2 | Enable account | Candidate can log in again | ✅ | Production, 2026-10-03 (temporary test candidate) |
 
 ---
 
@@ -219,13 +219,13 @@ Currently loaded on `sample@gmail.com`: **rich** (2026-10-02).
 
 | # | Case | Expected | Result | Issue |
 |---|---|---|---|---|
-| 1 | Wrong password 5+ times quickly | Eventually "Too many sign-in attempts…" | ⬜ | |
-| 2 | Session ended elsewhere: log in in two browsers, change password in one (Forgot password → email link), reload the other | "Your session has expired", no endless redirect | ⬜ | (unblocked — email works) |
-| 3 | Remember me unticked | Logged out after closing Chrome, or after 12 h at most | ⬜ | |
-| 4 | Open /xyz | Friendly 404 page | ⬜ | |
-| 5 | Open another user's report ID as the candidate | 404 page, not their data | ⬜ | |
-| 6 | DevTools Offline → F5, then back online | "No internet connection" page; reloads by itself | ⬜ | |
-| 7 | Ctrl+Shift+M → iPhone: dashboard, room, report | Match the mobile designs, no sideways scroll | ⬜ | |
+| 1 | Wrong password 5+ times quickly | Eventually "Too many sign-in attempts…" | 🔧 | [#7](#7--no-lockout-after-repeated-wrong-passwords) — was never blocked; fixed: 6th wrong password refused (localhost, `npm run test:lockout`) |
+| 2 | Session ended elsewhere: log in in two browsers, change password in one (Forgot password → email link), reload the other | "Your session has expired", no endless redirect | ✅ | Production: all sessions revoked elsewhere → /login?error=session_expired, 2 navigations, no loop |
+| 3 | Remember me unticked | Logged out after closing Chrome, or after 12 h at most | ✅ | Production: unticked → signed out after fully closing and reopening Chrome (same profile), and after the 12 h deadline; ticked → still signed in after reopening (400-day cookies) |
+| 4 | Open /xyz | Friendly 404 page | ✅ | Production: 404 "Page not found" |
+| 5 | Open another user's report ID as the candidate | 404 page, not their data | ✅ | Production: report, room and complete pages show the 404 page and none of the other user's data (status 200 because the page streams; noindex set) |
+| 6 | DevTools Offline → F5, then back online | "No internet connection" page; reloads by itself | ✅ | Checked by the user in a real browser, 2026-10-03 |
+| 7 | Ctrl+Shift+M → iPhone: dashboard, room, report | Match the mobile designs, no sideways scroll | ✅ | Production at 390 px: dashboard, room, report, plan, history — no sideways scroll |
 
 ---
 
@@ -301,13 +301,13 @@ Automated: `npm run test:ai` — 18/18 passed locally. Manual checks below: firs
 | 5 | Give one good, detailed answer | Next question within a few seconds | ✅ | ✅ | |
 | 6 | Give one short, vague answer | A follow-up (e.g. Q2a) appears asking for the missing detail | ✅ | ✅ | |
 | 7 | Answer by voice once | Transcript is scored like typed text | ✅ | ✅ | |
-| 8 | Finish all questions (or End interview) | Report within ~10 s: overall score, 7 criteria, strengths, improvements, feedback per question | ✅ | ⬜ | |
-| 9 | Report → scores make sense | Good answer clearly higher than the vague one; feedback refers to what you said | ✅ | ⬜ | |
-| 10 | Improvement Plan | 5 weeks, topics with priorities, practice questions, 2 projects, tips — aimed at your gaps | ✅ | ⬜ | |
-| 11 | Plan → Regenerate | New plan appears after a few seconds | ✅ | ⬜ | |
-| 12 | Dashboard / History | Score, charts and "Where you stand" fill in from the new report | ✅ | ⬜ | |
-| 13 | Admin → Interviews → that interview | Scores, AI feedback, follow-ups and expected answers shown | ✅ | ⬜ | |
-| 14 | Admin → Settings → Allow AI follow-ups off → new interview with vague answers | No follow-ups; turn it back on afterwards | ✅ | ⬜ | |
+| 8 | Finish all questions (or End interview) | Report within ~10 s: overall score, 7 criteria, strengths, improvements, feedback per question | ✅ | ✅ | |
+| 9 | Report → scores make sense | Good answer clearly higher than the vague one; feedback refers to what you said | ✅ | ✅ | |
+| 10 | Improvement Plan | 5 weeks, topics with priorities, practice questions, 2 projects, tips — aimed at your gaps | ✅ | ✅ | |
+| 11 | Plan → Regenerate | New plan appears after a few seconds | ✅ | ✅ | |
+| 12 | Dashboard / History | Score, charts and "Where you stand" fill in from the new report | ✅ | ✅ | |
+| 13 | Admin → Interviews → that interview | Scores, AI feedback, follow-ups and expected answers shown | ✅ | ✅ | |
+| 14 | Admin → Settings → Allow AI follow-ups off → new interview with vague answers | No follow-ups; turn it back on afterwards | ✅ | ✅ | |
 
 ---
 
@@ -514,7 +514,7 @@ listed → edit → delete.
 |---|---|
 | Found at | Part G step 8 (production check), report Download |
 | Severity | Minor — same content, different layout and margins |
-| Status | **Fixed – awaiting re-test** |
+| Status | **Closed** — fix deployed (dc681e6); the user adjusts margins/scale in the print dialog as needed |
 
 **Expected:** the same printout everywhere.
 
@@ -535,6 +535,31 @@ instead of leaving a blank gap.
 end-to-end 50/50.
 
 **Re-test:** Download in Chrome and Brave with default margins → same layout, text clear of the edges.
+
+---
+
+### #7 — No lockout after repeated wrong passwords
+
+| | |
+|---|---|
+| Found at | D1 (wrong password many times quickly) |
+| Severity | Major (security) — passwords can be guessed without any slowdown |
+| Status | **Fixed – awaiting re-test on production** |
+
+**Expected:** after several wrong passwords, "Too many sign-in attempts. Please wait a few minutes and try again."
+
+**Actual:** 41 wrong passwords in a row (about 1 a second, localhost) were all answered "Incorrect email or
+password."; nothing was ever blocked.
+
+**Root cause:** the app only shows the "too many attempts" message when Supabase refuses a sign-in with a
+rate-limit error. Supabase's sign-in limit (30 requests / 5 min per IP) did not trigger for failed passwords
+at this volume, and on Vercel every request reaches Supabase from Vercel's servers rather than the user's IP.
+
+**Fix (done):** an app-level limit in the login actions (candidate and admin): count failed attempts per email
+(and per IP) in a small database table; after 5 failures in 15 minutes, refuse further attempts for 15 minutes
+with "Too many sign-in attempts. Please wait N minutes and try again.", and clear the count after a successful sign-in. Implemented in `src/lib/login-throttle.ts` (`checkLoginLock`, `recordLoginFailure`, `clearLoginFailures`), used by `login` and `adminLogin`; migration `…12_login_attempts.sql` (server-only table). Per-address limit 50 so shared networks aren't locked out.
+
+**Verified (localhost):** `npm run test:lockout` 8/8; unit tests for the lockout rule; forms 74/74, e2e 50/50, db 32/32.
 
 ---
 

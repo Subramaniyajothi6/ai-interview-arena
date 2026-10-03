@@ -3,6 +3,12 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isSupabaseConfigured, publicEnv } from "@/lib/env";
+import {
+  checkLoginLock,
+  clearLoginFailures,
+  recordLoginFailure,
+  tooManyAttemptsMessage,
+} from "@/lib/login-throttle";
 import { SESSION_ONLY_COOKIE, sessionOnlyDeadline } from "@/lib/supabase/remember";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -45,6 +51,11 @@ export async function login(_prev: AuthFormState, formData: FormData): Promise<A
   if (!parsed.success) return { fieldErrors: fieldErrors(parsed.error), values };
   if (!isSupabaseConfigured()) return { error: NOT_CONFIGURED, values };
 
+  // Too many wrong passwords recently: refuse without asking Supabase.
+  const email = parsed.data.email;
+  const locked = await checkLoginLock(email);
+  if (locked) return { error: tooManyAttemptsMessage(locked), values };
+
   // Without "Remember me" the session ends when the browser closes.
   const remember = formData.get("remember") === "on";
   const cookieStore = await cookies();
@@ -58,7 +69,11 @@ export async function login(_prev: AuthFormState, formData: FormData): Promise<A
 
   const supabase = await createClient({ sessionOnly: !remember });
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) return { error: signInErrorMessage(error), values };
+  if (error) {
+    if (error.code === "invalid_credentials") await recordLoginFailure(email);
+    return { error: signInErrorMessage(error), values };
+  }
+  await clearLoginFailures(email);
 
   // Admins who use the normal login page go straight to the admin console.
   const { data: profile } = await supabase
@@ -173,11 +188,17 @@ export async function adminLogin(_prev: AuthFormState, formData: FormData): Prom
   if (!parsed.success) return { fieldErrors: fieldErrors(parsed.error), values };
   if (!isSupabaseConfigured()) return { error: NOT_CONFIGURED, values };
 
+  const email = parsed.data.email;
+  const locked = await checkLoginLock(email);
+  if (locked) return { error: tooManyAttemptsMessage(locked), values };
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error || !data.user) {
+    if (error?.code === "invalid_credentials") await recordLoginFailure(email);
     return { error: error ? signInErrorMessage(error) : "Incorrect email or password.", values };
   }
+  await clearLoginFailures(email);
 
   const { data: profile } = await supabase
     .from("profiles")

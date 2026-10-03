@@ -40,6 +40,8 @@ The app needs to handle every situation a user can run into, but not every situa
 - **Notifications are built from existing data** (interviews, reports, plans) instead of a separate notifications table, so they can never get out of sync. "Seen" is remembered per browser.
 - **Security headers** on every response (no framing by other sites, no MIME sniffing, strict referrer, microphone limited to this site, HTTPS only).
 
+- **Sign-in lockout.** Supabase's sign-in limit is per IP address, and on Vercel every request reaches it from Vercel's servers, so it can't stop password guessing. The login actions record failed attempts in a server-only `login_attempts` table: after 5 wrong passwords for an email in 15 minutes (or 50 from one address, high enough for shared college or office networks) sign-in is refused for up to 15 minutes, on both the candidate and admin logins, even with the right password. A successful sign-in clears that email's count; attempts older than a day are deleted.
+
 ## 4. Design
 
 - **The design canvas is the source of truth** for every screen, including the three phone boards. The exported `Design.pdf` (27 Sep) is older than the canvas (changed 30 Sep), so comparisons are made against the canvas.

@@ -548,6 +548,27 @@ export type Database = {
           },
         ]
       }
+      login_attempts: {
+        Row: {
+          created_at: string
+          email: string
+          id: number
+          ip: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: never
+          ip: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: never
+          ip?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

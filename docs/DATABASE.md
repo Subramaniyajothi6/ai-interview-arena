@@ -13,6 +13,7 @@ AI Interview Arena uses **Supabase PostgreSQL** with row level security (RLS), S
 | `…07_more_questions.sql`, `…08_more_role_questions.sql` | 64 more questions — 129 in total, at least 8 per role for technical interviews |
 | `…09_ai_provider_setting.sql` | AI provider choice in the admin settings |
 | `…10_avatars.sql` | Public `avatars` bucket for profile photos (JPG/PNG/WebP, 2 MB); users write only in their own folder |
+| `…12_login_attempts.sql` | `login_attempts` (email, IP, time of each failed sign-in) for the wrong-password lockout; server-only (RLS on, no policies, no grants) |
 | `…11_job_description.sql` | Optional `job_description` and `job_match` on interviews; `gap` question source (questions on skills the job needs that the resume doesn't show) |
 
 ## Entity relationships

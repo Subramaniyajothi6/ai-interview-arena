@@ -52,20 +52,21 @@ Secret keys are only read in files marked `server-only`, so importing them into 
 
 ## Scripts
 
-| Command              | Description                                                             |
-| -------------------- | ----------------------------------------------------------------------- |
-| `npm run dev`        | Start the development server                                            |
-| `npm run build`      | Production build                                                        |
-| `npm run start`      | Run the production build                                                |
-| `npm run lint`       | ESLint                                                                  |
-| `npm run typecheck`  | TypeScript type check                                                   |
-| `npm run format`     | Prettier                                                                |
-| `npm test`           | Unit tests (Vitest)                                                     |
-| `npm run test:db`    | Database security tests                                                 |
-| `npm run test:e2e`   | End-to-end tests (app running)                                          |
-| `npm run test:forms` | Form validation tests in the browser (app running)                      |
-| `npm run test:job`   | Job-description feature tests in the browser (app running)              |
-| `npm run test:ai`    | Live AI test: one full interview with real AI (app running, AI key set) |
+| Command                | Description                                                             |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `npm run dev`          | Start the development server                                            |
+| `npm run build`        | Production build                                                        |
+| `npm run start`        | Run the production build                                                |
+| `npm run lint`         | ESLint                                                                  |
+| `npm run typecheck`    | TypeScript type check                                                   |
+| `npm run format`       | Prettier                                                                |
+| `npm test`             | Unit tests (Vitest)                                                     |
+| `npm run test:db`      | Database security tests                                                 |
+| `npm run test:e2e`     | End-to-end tests (app running)                                          |
+| `npm run test:forms`   | Form validation tests in the browser (app running)                      |
+| `npm run test:job`     | Job-description feature tests in the browser (app running)              |
+| `npm run test:lockout` | Sign-in lockout test in the browser (app running)                       |
+| `npm run test:ai`      | Live AI test: one full interview with real AI (app running, AI key set) |
 
 ## Project structure
 
