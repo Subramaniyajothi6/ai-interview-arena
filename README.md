@@ -4,6 +4,10 @@ An AI-powered mock interview and candidate evaluation platform. Candidates confi
 
 > AI scores are estimates to guide practice, not objective measurements of a candidate's ability.
 
+**New to the project?** Start with [docs/HANDOVER.md](docs/HANDOVER.md): every feature, and step-by-step setup on your own computer.
+
+Live app: https://ai-interview-arena-mu.vercel.app
+
 ## Tech stack
 
 | Layer        | Technology                                                    |
@@ -12,8 +16,8 @@ An AI-powered mock interview and candidate evaluation platform. Candidates confi
 | Backend      | Next.js Route Handlers and Server Actions                     |
 | Database     | Supabase PostgreSQL with row level security                   |
 | Auth         | Supabase Auth                                                 |
-| File storage | Supabase Storage (private `resumes` bucket)                   |
-| AI           | OpenAI API (server-side only)                                 |
+| File storage | Supabase Storage (`resumes` private, `avatars` public)        |
+| AI           | Open-source gpt-oss models via Groq (or OpenAI), server-side  |
 | Deployment   | Vercel                                                        |
 
 ## Getting started
@@ -27,7 +31,7 @@ An AI-powered mock interview and candidate evaluation platform. Candidates confi
 ### Installation
 
 ```bash
-git clone https://github.com/<your-username>/ai-interview-arena.git
+git clone https://github.com/Subramaniyajothi6/ai-interview-arena.git
 cd ai-interview-arena
 npm install
 cp .env.example .env.local   # then fill in the values
@@ -43,7 +47,8 @@ Open http://localhost:3000.
 | `NEXT_PUBLIC_SUPABASE_URL`             | Browser and server                             | No     |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser and server                             | No     |
 | `SUPABASE_SECRET_KEY`                  | Server only (trusted writes such as AI scores) | Yes    |
-| `OPENAI_API_KEY`                       | Server only (all AI calls)                     | Yes    |
+| `OPEN_SOURCE_AI_API_KEY`               | Server only (AI calls, default provider Groq)  | Yes    |
+| `OPENAI_API_KEY`                       | Server only, optional (if OpenAI is chosen)    | Yes    |
 | `OPENAI_MODEL`                         | Server only, optional (default `gpt-4o-mini`)  | No     |
 | `OPENAI_TRANSCRIBE_MODEL`              | Server only, optional (default `whisper-1`)    | No     |
 | `NEXT_PUBLIC_SITE_URL`                 | Auth email redirect links                      | No     |
@@ -77,13 +82,13 @@ src/
   lib/              constants, env, Supabase clients, AI helpers
 supabase/
   migrations/       database schema, security policies, storage
-docs/               PPT, UI/UX design, database, API and testing docs
+docs/               handover guide, API, database, testing and decisions
 ```
 
 ## Documentation
 
+- [Handover](docs/HANDOVER.md): features and full local setup
+- [API](docs/API.md): server actions, route handlers and route protection
 - [Database](docs/DATABASE.md): schema, relationships, security model and migrations
 - [Testing](docs/TESTING.md): automated suites, 32 test cases with results and screenshots
 - [Decisions](docs/DECISIONS.md): product and technical decisions, including how loading, empty, error, offline and other screen states are handled
-
-API and deployment documentation will be added in `docs/` as each part is built.

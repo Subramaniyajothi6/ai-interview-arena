@@ -10,7 +10,7 @@ and how each problem is fixed. Automated suites are described in [TESTING.md](./
 | Browser | Chrome, desktop + DevTools device emulation |
 | AI | Off (questions from the bank, keyword resume analysis, "Evaluation pending" reports) |
 
-**Result key:** ✅ Pass · ❌ Fail · 🔧 Fixed (failed, then fixed and re-tested) · ⏸️ Blocked (needs an earlier step) · ⬜ Not run yet
+**Result key:** ✅ Pass · ❌ Fail · 🔧 Fixed (failed, then fixed and re-tested) · ⏸️ Blocked (needs an earlier step) · ⏭️ Skipped (covered by other checks) · ⬜ Not run yet
 
 **Issue status:** Open · Fixing · Fixed – awaiting re-test · Closed · Won't fix
 
@@ -20,11 +20,11 @@ and how each problem is fixed. Automated suites are described in [TESTING.md](./
 
 | Part | Steps | ✅ | ❌ / 🔧 | ⏸️ | ⬜ |
 |---|---|---|---|---|---|
-| A. New candidate | 5 sections | 4 (A2–A5) | 0 (1 fixed) | 0 | 1 (A1) |
+| A. New candidate | 5 sections | 5 (all) | 0 (1 fixed) | 0 | 0 |
 | B. An interview | 6 sections | 6 (all) | 0 (2 fixed) | 0 | 0 |
 | C. Admin | 7 sections | 7 (all) | 0 (2 fixed) | 0 | 0 |
 | D. Edge cases | 7 cases | 7 (all; D1 after fix) | 0 | 0 | 0 |
-| E. Different data | 25 checks | 0 | 0 | 0 | 25 |
+| E. Different data | 25 checks | 0 | 0 | 0 | 0 (all 25 ⏭️ skipped, see Part E) |
 | F. Job description | 11 checks | 0 | 0 | 0 | 11 |
 | G. AI | 14 checks | 14 local + 14 production | 0 | 0 | 0 |
 
@@ -61,7 +61,7 @@ Currently loaded on `sample@gmail.com`: **rich** (2026-10-02).
 
 | # | Step | Expected | Result | Issue |
 |---|---|---|---|---|
-| 1 | Open localhost:3000 while logged out | "Log in" and "Get started" at the top | ⬜ | |
+| 1 | Open localhost:3000 while logged out | "Log in" and "Get started" at the top | ✅ | Landing page while logged out (local and production); also checked by `npm run test:e2e` |
 
 ### A2. Register
 
@@ -231,40 +231,49 @@ Currently loaded on `sample@gmail.com`: **rich** (2026-10-02).
 
 ## Part E: Different data (sample data)
 
+**Skipped (2026-10-04).** Not run row by row; the same screens were already checked with varied data:
+
+- D7: dashboard, room, report, plan and history at phone width (390 px) on production with a full history.
+- The width sweep (375 / 768 / 1024 / 1280 px) over every candidate and admin page: no sideways scroll, text spill or overlap.
+- The `sample@gmail.com` account (`--scenario=rich`) and real AI reports from Part G reviewed in the browser: reports, follow-ups, skipped questions, plan, bell, profile and admin detail pages.
+- Automated suites: `test:e2e` (every page), `test:forms`, `test:job`, `test:ai`.
+
+The rows below are kept as a checklist for a future data-variety pass.
+
 ### E1. Rich history (`--scenario=rich`)
 
 | # | Screen | Expected | Result | Issue |
 |---|---|---|---|---|
-| 1 | Dashboard tiles | Total 8, Completed 6, average and best (79) scores, change "+13 vs last interview" | ⬜ | |
-| 2 | Dashboard charts | Trend line shows the rise and dips; criteria, skills and interview-type cards filled | ⬜ | |
-| 3 | Dashboard recent list | In-progress interview offers Resume; abandoned one shown as ended early | ⬜ | |
-| 4 | Resume card | "Sample_Resume.pdf · Analysed · 8 skills found" | ⬜ | |
-| 5 | History | 8 rows; filters by type / status / role narrow the list; criterion averages shown | ⬜ | |
-| 6 | Latest report (79) | Scores per question, follow-ups labelled 2a / 2b / 5a, feedback, skill scores, "+13 vs last interview", plan preview | ⬜ | |
-| 7 | Older report with skips | Skipped questions say "Skipped", no score | ⬜ | |
-| 8 | Abandoned interview | Opens sensibly (no report, answered questions kept) | ⬜ | |
-| 9 | Resume the in-progress interview | Room opens at question 4 of 8, earlier answers marked | ⬜ | |
-| 10 | Improvement Plan | 5 weeks, topics with priorities, practice questions, 2 projects with "Builds:", tips | ⬜ | |
-| 11 | Bell | Several notifications, newest first | ⬜ | |
-| 12 | Profile | Phone, role, education, experience, 7 skills, resume shown | ⬜ | |
-| 13 | Admin: candidate detail | Profile, skills, resume opens as a PDF, 8 interviews | ⬜ | |
-| 14 | Admin: dashboard / analytics / reports | Numbers include the sample interviews | ⬜ | |
-| 15 | Phone width (iPhone) | Dashboard, report and plan fit with no sideways scroll | ⬜ | |
+| 1 | Dashboard tiles | Total 8, Completed 6, average and best (79) scores, change "+13 vs last interview" | ⏭️ | |
+| 2 | Dashboard charts | Trend line shows the rise and dips; criteria, skills and interview-type cards filled | ⏭️ | |
+| 3 | Dashboard recent list | In-progress interview offers Resume; abandoned one shown as ended early | ⏭️ | |
+| 4 | Resume card | "Sample_Resume.pdf · Analysed · 8 skills found" | ⏭️ | |
+| 5 | History | 8 rows; filters by type / status / role narrow the list; criterion averages shown | ⏭️ | |
+| 6 | Latest report (79) | Scores per question, follow-ups labelled 2a / 2b / 5a, feedback, skill scores, "+13 vs last interview", plan preview | ⏭️ | |
+| 7 | Older report with skips | Skipped questions say "Skipped", no score | ⏭️ | |
+| 8 | Abandoned interview | Opens sensibly (no report, answered questions kept) | ⏭️ | |
+| 9 | Resume the in-progress interview | Room opens at question 4 of 8, earlier answers marked | ⏭️ | |
+| 10 | Improvement Plan | 5 weeks, topics with priorities, practice questions, 2 projects with "Builds:", tips | ⏭️ | |
+| 11 | Bell | Several notifications, newest first | ⏭️ | |
+| 12 | Profile | Phone, role, education, experience, 7 skills, resume shown | ⏭️ | |
+| 13 | Admin: candidate detail | Profile, skills, resume opens as a PDF, 8 interviews | ⏭️ | |
+| 14 | Admin: dashboard / analytics / reports | Numbers include the sample interviews | ⏭️ | |
+| 15 | Phone width (iPhone) | Dashboard, report and plan fit with no sideways scroll | ⏭️ | |
 
 ### E2. Extremes (`--scenario=edge`)
 
 | # | Screen | Expected | Result | Issue |
 |---|---|---|---|---|
-| 1 | Report with score 0, 15 questions all skipped | No crash; every row "Skipped"; empty strengths / improvements handled | ⬜ | |
-| 2 | Report with score 100 and very long answers | Long text wraps or collapses; score ring shows 100 | ⬜ | |
-| 3 | Report with 2 follow-ups on two questions | Labels 1a / 1b / 3a / 3b in order | ⬜ | |
-| 4 | Plan with empty lists (score-0 report) | Sensible empty states, no blank cards | ⬜ | |
-| 5 | Plan with 6 weeks and long titles | Timeline wraps, no overflow | ⬜ | |
-| 6 | Interview ended with no answers | Opens without errors | ⬜ | |
-| 7 | Interviews in setup / ready | Recent list links continue setup / open instructions | ⬜ | |
-| 8 | Profile with 16 skills and long text | Wraps; no overflow at 375 px | ⬜ | |
-| 9 | Dashboard and history with these extremes | Charts handle 0 and 100; no overflow | ⬜ | |
-| 10 | Admin candidate detail and interview detail | Long text and 15 questions render | ⬜ | |
+| 1 | Report with score 0, 15 questions all skipped | No crash; every row "Skipped"; empty strengths / improvements handled | ⏭️ | |
+| 2 | Report with score 100 and very long answers | Long text wraps or collapses; score ring shows 100 | ⏭️ | |
+| 3 | Report with 2 follow-ups on two questions | Labels 1a / 1b / 3a / 3b in order | ⏭️ | |
+| 4 | Plan with empty lists (score-0 report) | Sensible empty states, no blank cards | ⏭️ | |
+| 5 | Plan with 6 weeks and long titles | Timeline wraps, no overflow | ⏭️ | |
+| 6 | Interview ended with no answers | Opens without errors | ⏭️ | |
+| 7 | Interviews in setup / ready | Recent list links continue setup / open instructions | ⏭️ | |
+| 8 | Profile with 16 skills and long text | Wraps; no overflow at 375 px | ⏭️ | |
+| 9 | Dashboard and history with these extremes | Charts handle 0 and 100; no overflow | ⏭️ | |
+| 10 | Admin candidate detail and interview detail | Long text and 15 questions render | ⏭️ | |
 
 ---
 
