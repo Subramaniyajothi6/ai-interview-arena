@@ -63,6 +63,7 @@ export default async function CandidateLayout({ children }: { children: React.Re
               name={profile.full_name}
               subtitle="Candidate"
               avatarUrl={profile.avatar_url}
+              href="/profile"
             />
             <form action={logout} className="lg:hidden">
               <button type="submit" className="btn btn-ghost w-11 px-0" aria-label="Log out">
