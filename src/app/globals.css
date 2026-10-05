@@ -30,6 +30,9 @@
   --color-primary-900: #4c1d95;
   --color-primary-700: #5b21b6;
   --color-primary-600: #6d28d9;
+  /* Violet for text on surfaces, and the darker fill for hovered buttons. */
+  --color-primary-fg: #6d28d9;
+  --color-primary-hover: #5b21b6;
   --color-primary-500: #8b5cf6;
   --color-primary-300: #c4b5fd;
   --color-primary-200: #ddd6fe;
@@ -96,7 +99,9 @@
     --color-ink-2: #1d1a2e;
     --color-primary-900: #ddd6fe;
     --color-primary-700: #c4b5fd;
-    --color-primary-600: #8b5cf6;
+    --color-primary-600: #7c3aed;
+    --color-primary-fg: #a78bfa;
+    --color-primary-hover: #6d28d9;
     --color-primary-500: #a78bfa;
     --color-primary-300: #9a85ee;
     --color-primary-200: rgb(167 139 250 / 0.28);
@@ -137,7 +142,9 @@
     --color-ink-2: #1d1a2e;
     --color-primary-900: #ddd6fe;
     --color-primary-700: #c4b5fd;
-    --color-primary-600: #8b5cf6;
+    --color-primary-600: #7c3aed;
+    --color-primary-fg: #a78bfa;
+    --color-primary-hover: #6d28d9;
     --color-primary-500: #a78bfa;
     --color-primary-300: #9a85ee;
     --color-primary-200: rgb(167 139 250 / 0.28);
@@ -180,7 +187,7 @@
     letter-spacing: -0.015em;
   }
   a {
-    color: var(--color-primary-600);
+    color: var(--color-primary-fg);
   }
   a:hover {
     color: var(--color-primary-700);
@@ -216,8 +223,8 @@
     white-space: nowrap;
   }
   .btn:hover {
-    background: var(--color-primary-700);
-    border-color: var(--color-primary-700);
+    background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
     color: #fff;
   }
   .btn:disabled,
@@ -343,7 +350,7 @@
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--color-primary-600);
+    color: var(--color-primary-fg);
   }
 
   .nav-link {

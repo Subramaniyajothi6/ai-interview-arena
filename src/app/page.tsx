@@ -29,7 +29,7 @@ export default async function LandingPage() {
                 <form action={logout}>
                   <button
                     type="submit"
-                    className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-white hover:text-primary-200"
+                    className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-white hover:text-white/75"
                   >
                     Log out
                   </button>
@@ -42,7 +42,7 @@ export default async function LandingPage() {
               <>
                 <Link
                   href="/login"
-                  className="font-semibold text-white no-underline hover:text-primary-200"
+                  className="font-semibold text-white no-underline hover:text-white/75"
                 >
                   Log in
                 </Link>
@@ -139,7 +139,7 @@ export default async function LandingPage() {
 
             {/* Overlaps the card's top-right corner, above the timer. */}
             <div className="absolute -top-10 -right-[70px] flex w-[250px] flex-col gap-2 rounded-[14px] bg-primary-600 px-[18px] py-4 shadow-[0_24px_48px_rgba(0,0,0,0.35)]">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.1em] text-primary-200 uppercase">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.1em] text-white/85 uppercase">
                 <Icon name="message" size={12} />
                 AI follow-up
               </span>

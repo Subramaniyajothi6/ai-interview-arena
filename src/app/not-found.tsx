@@ -9,7 +9,7 @@ export default function NotFound() {
       </header>
       <main className="flex grow items-center justify-center px-4 py-16">
         <section className="card flex max-w-md flex-col items-center gap-4 !p-8 text-center">
-          <span className="font-display text-5xl font-bold text-primary-600">404</span>
+          <span className="font-display text-5xl font-bold text-primary-fg">404</span>
           <div>
             <h1 className="text-xl">Page not found</h1>
             <p className="mt-1.5 text-sm text-muted">

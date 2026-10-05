@@ -11,7 +11,7 @@ export function ForgotPasswordForm() {
 
   return (
     <form action={action} noValidate className="flex flex-col gap-4">
-      <span className="flex size-10 items-center justify-center rounded-[11px] bg-primary-50 text-primary-600">
+      <span className="flex size-10 items-center justify-center rounded-[11px] bg-primary-50 text-primary-fg">
         <svg
           width="20"
           height="20"

@@ -109,7 +109,7 @@ export function ResumeStep({
             const file = e.dataTransfer.files[0];
             if (file && !busy) upload(file);
           }}
-          className={`flex h-[200px] cursor-pointer flex-col items-center justify-center gap-2.5 rounded-card border-2 border-dashed px-4 text-center text-primary-600 ${
+          className={`flex h-[200px] cursor-pointer flex-col items-center justify-center gap-2.5 rounded-card border-2 border-dashed px-4 text-center text-primary-fg ${
             dragging ? "border-primary-600 bg-primary-100" : "border-primary-300 bg-primary-50"
           } ${busy ? "pointer-events-none opacity-60" : ""}`}
         >
@@ -117,7 +117,7 @@ export function ResumeStep({
             <Icon name="upload" size={24} />
           </span>
           <span className="text-sm font-semibold text-text">
-            Drag &amp; drop, or <span className="text-primary-600">browse</span>
+            Drag &amp; drop, or <span className="text-primary-fg">browse</span>
           </span>
           <span className="text-xs text-muted">PDF, DOC or DOCX · up to {maxMb} MB</span>
         </label>

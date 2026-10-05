@@ -18,7 +18,7 @@ export function ForgotCard({ onClose }: { onClose: () => void }) {
       className="card hidden w-[250px] shrink-0 flex-col gap-3 !p-[22px] shadow-[0_12px_32px_rgba(23,21,42,0.10)] xl:flex"
     >
       <div className="flex items-start justify-between">
-        <span className="flex size-10 items-center justify-center rounded-[11px] bg-primary-50 text-primary-600">
+        <span className="flex size-10 items-center justify-center rounded-[11px] bg-primary-50 text-primary-fg">
           <Icon name="lock" size={20} />
         </span>
         <button

@@ -127,7 +127,7 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <section className="card flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <h3 className="text-base">Overall score by attempt</h3>
+            <h2 className="text-base">Overall score by attempt</h2>
             <span className="text-xs text-muted">AI estimates</span>
           </div>
           {scored.length > 1 ? (
@@ -146,7 +146,7 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
           )}
         </section>
         <section className="card flex flex-col gap-3">
-          <h3 className="text-base">Average by criterion</h3>
+          <h2 className="text-base">Average by criterion</h2>
           {averages ? (
             <CriteriaBars labelWidth={128} items={averages} />
           ) : (
@@ -160,7 +160,7 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
       <section className="card !p-0">
         {interviews.length === 0 ? (
           <div className="flex flex-col items-center gap-3 px-6 py-12 text-center">
-            <span className="flex size-12 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+            <span className="flex size-12 items-center justify-center rounded-xl bg-primary-50 text-primary-fg">
               <Icon name="history" size={22} />
             </span>
             <h2 className="text-lg">

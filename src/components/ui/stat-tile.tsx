@@ -18,7 +18,7 @@ export function StatTile({
       <div className="flex items-center justify-between">
         <span className="text-[13px] font-medium text-muted">{label}</span>
         {icon && (
-          <span className="flex size-8 items-center justify-center rounded-[9px] bg-primary-50 text-primary-600">
+          <span className="flex size-8 items-center justify-center rounded-[9px] bg-primary-50 text-primary-fg">
             <Icon name={icon} size={16} />
           </span>
         )}

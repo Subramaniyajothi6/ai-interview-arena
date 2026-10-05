@@ -103,7 +103,7 @@ export function ThemeToggle({
       }`}
     >
       <span
-        className={`absolute top-[2px] flex size-6 items-center justify-center rounded-full bg-surface text-primary-600 shadow-[0_1px_3px_rgb(0_0_0/0.25)] transition-[left] motion-reduce:transition-none ${
+        className={`absolute top-[2px] flex size-6 items-center justify-center rounded-full bg-surface text-primary-fg shadow-[0_1px_3px_rgb(0_0_0/0.25)] transition-[left] motion-reduce:transition-none ${
           dark ? "left-[26px]" : "left-[2px]"
         } [&_svg]:size-[13px]`}
       >

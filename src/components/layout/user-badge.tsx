@@ -30,7 +30,8 @@ export function UserBadge({
     <Link
       href={href}
       title="Your profile"
-      aria-label={`Your profile: ${name || "your account"}`}
+      // Starts with the visible text so voice control ("click Test Candidate") matches.
+      aria-label={`${name || "Your account"} ${subtitle}, your profile`}
       className="-mx-2 flex items-center gap-2.5 rounded-control px-2 py-1 text-text no-underline hover:bg-bg focus-visible:outline-2 focus-visible:outline-primary-600"
     >
       {content}

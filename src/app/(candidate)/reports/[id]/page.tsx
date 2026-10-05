@@ -195,7 +195,7 @@ export default async function ReportPage({ params }: PageProps<"/reports/[id]">)
           {report.summary && (
             <section className="card flex flex-col gap-2 !border-primary-200 !bg-primary-50 print:break-inside-avoid">
               <h3 className="flex items-center gap-2 text-base">
-                <span className="text-primary-600">
+                <span className="text-primary-fg">
                   <Icon name="sparkle" size={18} />
                 </span>
                 Summary
@@ -482,7 +482,7 @@ function JobMatchCard({
     <section className="card flex flex-col gap-4">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 className="flex items-center gap-2 text-base">
-          <span className="text-primary-600">
+          <span className="text-primary-fg">
             <Icon name="target" size={18} />
           </span>
           Job match
@@ -587,7 +587,7 @@ function ListCard({
 function AnswerDetails({ answer }: { answer: { answer_text: string | null; mode: string } }) {
   return (
     <details className="mt-1.5">
-      <summary className="cursor-pointer text-xs font-semibold text-primary-600">
+      <summary className="cursor-pointer text-xs font-semibold text-primary-fg">
         {`Your answer (${answer.mode === "voice" ? "voice" : "text"})`}
       </summary>
       <p className="mt-1.5 rounded-control bg-bg p-2.5 text-[13px] leading-relaxed font-normal whitespace-pre-wrap text-text">
@@ -629,7 +629,7 @@ function PlanPreview({
     <section className="card flex flex-col gap-4 !border-primary-300 !p-6 print:break-inside-avoid">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="flex items-center gap-2 text-lg">
-          <span className="text-primary-600">
+          <span className="text-primary-fg">
             <Icon name="sparkle" />
           </span>
           Personalized improvement plan
@@ -646,7 +646,7 @@ function PlanPreview({
             className="flex flex-col gap-2 rounded-xl border border-border-soft bg-surface-2 p-3.5"
           >
             <h4 className="flex items-center gap-2 text-sm">
-              <span className="text-primary-600">
+              <span className="text-primary-fg">
                 <Icon name={col.icon} size={16} />
               </span>
               {col.title}

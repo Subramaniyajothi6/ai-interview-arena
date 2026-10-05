@@ -218,7 +218,7 @@ export default async function AdminInterviewDetailPage({
               </section>
 
               <section className="card flex flex-col gap-3">
-                <h4 className="flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] text-primary-600 uppercase">
+                <h4 className="flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] text-primary-fg uppercase">
                   <Icon name="sparkle" size={14} />
                   AI evaluation
                 </h4>
@@ -238,7 +238,7 @@ export default async function AdminInterviewDetailPage({
                 )}
                 {q.expected_points && (
                   <details className="text-[13px]">
-                    <summary className="cursor-pointer font-semibold text-primary-600">
+                    <summary className="cursor-pointer font-semibold text-primary-fg">
                       Expected answer (admin only)
                     </summary>
                     <p className="mt-1.5 text-text-2">{q.expected_points}</p>
@@ -252,7 +252,7 @@ export default async function AdminInterviewDetailPage({
 
       <section className="card flex flex-wrap items-center justify-between gap-4 !border-primary-200 !bg-primary-50">
         <div className="flex items-start gap-3">
-          <span className="text-primary-600">
+          <span className="text-primary-fg">
             <Icon name="file" />
           </span>
           <div>
@@ -286,7 +286,7 @@ function JobDescriptionCard({ text, match: raw }: { text: string; match: unknown
     <section className="card flex flex-col gap-3 !px-6 !py-5">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="flex items-center gap-2 text-base">
-          <span className="text-primary-600">
+          <span className="text-primary-fg">
             <Icon name="target" size={18} />
           </span>
           Job description
@@ -314,7 +314,7 @@ function JobDescriptionCard({ text, match: raw }: { text: string; match: unknown
         </div>
       )}
       <details className="text-[13px]">
-        <summary className="cursor-pointer font-semibold text-primary-600">
+        <summary className="cursor-pointer font-semibold text-primary-fg">
           Show the full job description
         </summary>
         <p className="mt-2 max-h-80 overflow-y-auto rounded-control bg-bg p-3 leading-relaxed whitespace-pre-wrap text-text-2">

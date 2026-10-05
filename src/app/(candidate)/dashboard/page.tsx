@@ -125,8 +125,10 @@ export default async function DashboardPage() {
             ["Completion rate", pct(d.stats.completionRate)],
           ].map(([label, value]) => (
             <div key={label} className="flex items-baseline gap-2 py-[7px] text-sm">
-              <dt className="text-text-2">{label}</dt>
-              <span className="-translate-y-1 grow border-b border-dotted border-border-strong" />
+              {/* The dotted leader is drawn by the term itself: a <dl> row may hold only <dt>/<dd>. */}
+              <dt className="flex grow items-baseline gap-2 text-text-2 after:grow after:-translate-y-1 after:border-b after:border-dotted after:border-border-strong after:content-['']">
+                {label}
+              </dt>
               <dd className="font-display text-base font-bold">{value}</dd>
             </div>
           ))}
@@ -169,7 +171,7 @@ export default async function DashboardPage() {
                             {c.label}
                             {tag && (
                               <span
-                                className={`ml-1.5 text-[10px] font-bold tracking-[0.08em] uppercase ${tag === "Focus" ? "text-warning" : "text-primary-600"}`}
+                                className={`ml-1.5 text-[10px] font-bold tracking-[0.08em] uppercase ${tag === "Focus" ? "text-warning" : "text-primary-fg"}`}
                               >
                                 {tag}
                               </span>
@@ -249,7 +251,7 @@ export default async function DashboardPage() {
             <ol className="flex flex-col gap-2.5">
               {d.improvements.map((item, i) => (
                 <li key={i} className="flex items-start gap-2.5 text-[13px] leading-snug">
-                  <span className="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-surface text-[11px] font-bold text-primary-600">
+                  <span className="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-surface text-[11px] font-bold text-primary-fg">
                     {i + 1}
                   </span>
                   {item}
@@ -505,7 +507,7 @@ function FirstInterview() {
       <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((s, i) => (
           <li key={s.title} className="flex gap-3">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-primary-50 text-primary-600">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-primary-50 text-primary-fg">
               <Icon name={s.icon} size={18} />
             </span>
             <span>

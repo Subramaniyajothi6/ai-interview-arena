@@ -158,7 +158,7 @@ export default async function PlanPage() {
         <section className="flex flex-col gap-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h3 className="flex items-center gap-2 text-lg">
-              <span className="text-primary-600">
+              <span className="text-primary-fg">
                 <Icon name="map" />
               </span>
               Recommended learning plan
@@ -177,7 +177,7 @@ export default async function PlanPage() {
                   className={`card flex flex-col gap-2.5 !p-4 ${state === "now" ? "!border-2 !border-primary-600 !bg-primary-50/40" : ""}`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[13px] font-bold text-primary-600">Week {n}</span>
+                    <span className="text-[13px] font-bold text-primary-fg">Week {n}</span>
                     <span
                       className={`chip !h-6 !text-[11px] ${state === "done" ? "chip-ok" : state === "now" ? "" : "chip-n"}`}
                     >
@@ -202,7 +202,7 @@ export default async function PlanPage() {
                         {w.hours} h this week
                       </span>
                     ) : null}
-                    {w.reason && <span className="text-primary-600">Why: {w.reason}</span>}
+                    {w.reason && <span className="text-primary-fg">Why: {w.reason}</span>}
                   </div>
                 </article>
               );
@@ -272,7 +272,7 @@ export default async function PlanPage() {
                       </span>
                     ))}
                     {p.builds && (
-                      <span className="ml-auto text-xs text-primary-600">Builds: {p.builds}</span>
+                      <span className="ml-auto text-xs text-primary-fg">Builds: {p.builds}</span>
                     )}
                   </div>
                 </div>
@@ -340,7 +340,7 @@ function PlanCard({
     <section className="card flex flex-col gap-3 print:break-inside-avoid">
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-2.5 text-base">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-primary-50 text-primary-fg">
             <Icon name={icon} size={16} />
           </span>
           {title}
@@ -360,7 +360,7 @@ function NoPlan() {
   return (
     <div className="mx-auto max-w-[1120px]">
       <section className="card flex flex-col items-center gap-3 px-6 py-12 text-center">
-        <span className="flex size-12 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+        <span className="flex size-12 items-center justify-center rounded-xl bg-primary-50 text-primary-fg">
           <Icon name="map" size={22} />
         </span>
         <span className="eyebrow">AI career feedback</span>

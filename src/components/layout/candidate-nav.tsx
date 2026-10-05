@@ -59,7 +59,7 @@ export function BottomNav() {
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={`flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-semibold no-underline ${
-              active ? "text-primary-600" : "text-muted hover:text-text"
+              active ? "text-primary-fg" : "text-muted hover:text-text"
             }`}
           >
             <Icon name={item.icon} size={20} />

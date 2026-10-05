@@ -163,8 +163,10 @@ export default async function AdminDashboardPage() {
             ["Active users (7 days)", fmt(active.count ?? 0)],
           ].map(([k, v]) => (
             <div key={k} className="flex items-baseline gap-2 py-[7px] text-sm">
-              <dt className="text-text-2">{k}</dt>
-              <span className="-translate-y-1 grow border-b border-border" />
+              {/* The leader line is drawn by the term itself: a <dl> row may hold only <dt>/<dd>. */}
+              <dt className="flex grow items-baseline gap-2 text-text-2 after:grow after:-translate-y-1 after:border-b after:border-border after:content-['']">
+                {k}
+              </dt>
               <dd className="font-display text-base font-bold">{v}</dd>
             </div>
           ))}

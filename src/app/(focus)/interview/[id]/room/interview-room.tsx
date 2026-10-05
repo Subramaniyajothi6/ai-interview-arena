@@ -430,7 +430,7 @@ export function InterviewRoom({
                     aria-label={speech.listening ? "Stop recording" : "Start recording"}
                     aria-pressed={speech.listening}
                     className={`flex size-16 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 text-white shadow-[0_0_0_8px_var(--color-primary-100)] ${
-                      speech.listening ? "bg-primary-700" : "bg-primary-600"
+                      speech.listening ? "bg-primary-hover" : "bg-primary-600"
                     }`}
                   >
                     <Icon name="mic" size={24} />

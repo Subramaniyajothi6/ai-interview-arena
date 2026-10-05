@@ -83,7 +83,7 @@ export default async function InstructionsPage({
           <ul className="flex flex-col gap-4">
             {items.map((item) => (
               <li key={item.title} className="flex gap-3.5">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-primary-50 text-primary-600">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-primary-50 text-primary-fg">
                   <Icon name={item.icon} size={18} />
                 </span>
                 <span>
